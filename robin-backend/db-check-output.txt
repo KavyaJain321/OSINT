@@ -1,0 +1,68 @@
+﻿
+========== CLIENTS ==========
+  ID: c0983ace-178a-4776-8457-e43863be194a  |  Name: National Bank of Pakistan  |  Industry: Banking & Finance
+  ID: edb9d578-df66-4c0e-a7df-26040f89e2fe  |  Name: Pakistan Telecom Corp  |  Industry: Telecommunications
+
+========== BRIEFS ==========
+  Brief ID: 5fbf7fdb-7591-4076-91a0-df45f9707df5
+  Client:   c0983ace-178a-4776-8457-e43863be194a
+  Title:    Middle East Conflict & Oil Supply Risk 2025
+  Status:   active
+  Created:  2026-03-02T19:54:09.8885+00:00
+  ---
+
+========== SOURCES (active) ==========
+  Total active sources: 30
+  [html] Reuters Energy ΓÇö https://www.reuters.com/business/energy/ (client: c0983ace-178a-4776-8457-e43863be194a)
+  [html] Arab News ΓÇö https://www.arabnews.com/ (client: c0983ace-178a-4776-8457-e43863be194a)
+  [html] The Jerusalem Post ΓÇö https://www.jpost.com/ (client: c0983ace-178a-4776-8457-e43863be194a)
+  [html] Gulf News ΓÇö https://gulfnews.com/ (client: c0983ace-178a-4776-8457-e43863be194a)
+  [pdf] IEA Reports ΓÇö https://www.iea.org/reports (client: c0983ace-178a-4776-8457-e43863be194a)
+  [youtube] Bloomberg Television ΓÇö https://www.youtube.com/@BloombergTelevision (client: c0983ace-178a-4776-8457-e43863be194a)
+  [youtube] CNBC Television ΓÇö https://www.youtube.com/@CNBCtelevision (client: c0983ace-178a-4776-8457-e43863be194a)
+  [youtube] CNN ΓÇö https://www.youtube.com/@CNN (client: c0983ace-178a-4776-8457-e43863be194a)
+  [youtube] Collin Rugg ΓÇö https://www.youtube.com/@CollinRugg (client: c0983ace-178a-4776-8457-e43863be194a)
+  [youtube] Al Jazeera English ΓÇö https://www.youtube.com/@AlJazeeraEnglish (client: c0983ace-178a-4776-8457-e43863be194a)
+  [youtube] BBC News ΓÇö https://www.youtube.com/@BBCNews (client: c0983ace-178a-4776-8457-e43863be194a)
+  [youtube] OilPrice.com ΓÇö https://www.youtube.com/@OilPricecom (client: c0983ace-178a-4776-8457-e43863be194a)
+  [youtube] TRT World ΓÇö https://www.youtube.com/@trtworld (client: c0983ace-178a-4776-8457-e43863be194a)
+  [youtube] Euronews ΓÇö https://www.youtube.com/@Euronews (client: c0983ace-178a-4776-8457-e43863be194a)
+  [youtube] TRT World ΓÇö https://www.youtube.com/@TRTWorld (client: c0983ace-178a-4776-8457-e43863be194a)
+  [browser] Google News Topic: Oil Markets ΓÇö https://news.google.com/topics/CAAqBwgKMOfHlwswtJqyAw (client: c0983ace-178a-4776-8457-e43863be194a)
+  [browser] Bloomberg Energy Dashboard ΓÇö https://www.bloomberg.com/energy (client: c0983ace-178a-4776-8457-e43863be194a)
+  [browser] OilPrice.com ΓÇö https://oilprice.com/ (client: c0983ace-178a-4776-8457-e43863be194a)
+  [rss] Reuters Top News ΓÇö https://feeds.reuters.com/reuters/topNews (client: c0983ace-178a-4776-8457-e43863be194a)
+  [rss] Reuters Middle East News ΓÇö https://feeds.reuters.com/reuters/middleeast (client: c0983ace-178a-4776-8457-e43863be194a)
+  [rss] BBC News Middle East ΓÇö https://feeds.bbci.co.uk/news/world/middle_east/rss.xml (client: c0983ace-178a-4776-8457-e43863be194a)
+  [rss] CNN Middle East News ΓÇö https://www.cnn.com/specials/rss/cnn_middle_east (client: c0983ace-178a-4776-8457-e43863be194a)
+  [rss] The New York Times World News ΓÇö https://www.nytimes.com/services/xml/rss/nyt/World.xml (client: c0983ace-178a-4776-8457-e43863be194a)
+  [rss] Arab News ΓÇö https://www.arabnews.com/rss.xml (client: c0983ace-178a-4776-8457-e43863be194a)
+  [rss] Bloomberg Energy News ΓÇö https://www.bloomberg.com/energy/rss (client: c0983ace-178a-4776-8457-e43863be194a)
+  [rss] BBC World News ΓÇö http://feeds.bbci.co.uk/news/world/rss.xml (client: c0983ace-178a-4776-8457-e43863be194a)
+  [rss] Google News: supply_chain ΓÇö https://news.google.com/rss/search?q=supply_chain&hl=en (client: c0983ace-178a-4776-8457-e43863be194a)
+  [rss] Al Jazeera ΓÇö https://www.aljazeera.com/xml/rss/all.xml (client: c0983ace-178a-4776-8457-e43863be194a)
+  [html] IEA News ΓÇö https://www.iea.org/news (client: c0983ace-178a-4776-8457-e43863be194a)
+  [html] AP News ΓÇö https://apnews.com/ (client: c0983ace-178a-4776-8457-e43863be194a)
+
+========== BRIEF RECOMMENDED SOURCES ==========
+  Total recommended sources: 20
+  Brief: 5fbf7fdb-7591-4076-91a0-df45f9707df5 | Reuters Middle East News ΓÇö https://feeds.reuters.com/reuters/middleeast | approved: false
+  Brief: 5fbf7fdb-7591-4076-91a0-df45f9707df5 | The New York Times World News ΓÇö https://www.nytimes.com/services/xml/rss/nyt/World.xml | approved: false
+  Brief: 5fbf7fdb-7591-4076-91a0-df45f9707df5 | CNN Middle East News ΓÇö https://www.cnn.com/specials/rss/cnn_middle_east | approved: false
+  Brief: 5fbf7fdb-7591-4076-91a0-df45f9707df5 | BBC News Middle East ΓÇö https://feeds.bbci.co.uk/news/world/middle_east/rss.xml | approved: false
+  Brief: 5fbf7fdb-7591-4076-91a0-df45f9707df5 | Reuters Energy ΓÇö https://www.reuters.com/business/energy/ | approved: false
+  Brief: 5fbf7fdb-7591-4076-91a0-df45f9707df5 | Google News Topic: Oil Markets ΓÇö https://news.google.com/topics/CAAqBwgKMOfHlwswtJqyAw | approved: false
+  Brief: 5fbf7fdb-7591-4076-91a0-df45f9707df5 | IEA Reports ΓÇö https://www.iea.org/reports | approved: false
+  Brief: 5fbf7fdb-7591-4076-91a0-df45f9707df5 | CNBC Television ΓÇö https://www.youtube.com/@CNBCtelevision | approved: false
+  Brief: 5fbf7fdb-7591-4076-91a0-df45f9707df5 | Bloomberg Television ΓÇö https://www.youtube.com/@BloombergTelevision | approved: false
+  Brief: 5fbf7fdb-7591-4076-91a0-df45f9707df5 | CNN ΓÇö https://www.youtube.com/@CNN | approved: false
+  Brief: 5fbf7fdb-7591-4076-91a0-df45f9707df5 | BBC News ΓÇö https://www.youtube.com/@BBCNews | approved: false
+  Brief: 5fbf7fdb-7591-4076-91a0-df45f9707df5 | Reuters Top News ΓÇö https://feeds.reuters.com/reuters/topNews | approved: false
+  Brief: 5fbf7fdb-7591-4076-91a0-df45f9707df5 | BBC World News ΓÇö http://feeds.bbci.co.uk/news/world/rss.xml | approved: false
+  Brief: 5fbf7fdb-7591-4076-91a0-df45f9707df5 | Al Jazeera ΓÇö https://www.aljazeera.com/xml/rss/all.xml | approved: false
+  Brief: 5fbf7fdb-7591-4076-91a0-df45f9707df5 | Arab News ΓÇö https://www.arabnews.com/rss.xml | approved: false
+  Brief: 5fbf7fdb-7591-4076-91a0-df45f9707df5 | Bloomberg Energy News ΓÇö https://www.bloomberg.com/energy/rss | approved: false
+  Brief: 5fbf7fdb-7591-4076-91a0-df45f9707df5 | AP News ΓÇö https://apnews.com/ | approved: false
+  Brief: 5fbf7fdb-7591-4076-91a0-df45f9707df5 | IEA News ΓÇö https://www.iea.org/news | approved: false
+  Brief: 5fbf7fdb-7591-4076-91a0-df45f9707df5 | Gulf News ΓÇö https://gulfnews.com/ | approved: false
+  Brief: 5fbf7fdb-7591-4076-91a0-df45f9707df5 | Arab News ΓÇö https://www.arabnews.com/ | approved: false

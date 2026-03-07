@@ -1,0 +1,46 @@
+{
+  "name": "robin-backend",
+  "version": "1.0.0",
+  "description": "ROBIN OSINT — Multi-tenant news intelligence SaaS backend",
+  "type": "module",
+  "main": "src/index.js",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "start": "node --dns-result-order=ipv4first src/index.js",
+    "dev": "node --dns-result-order=ipv4first --watch src/index.js",
+    "scrape": "node --dns-result-order=ipv4first src/scrapers/run-once.js",
+    "seed": "node --dns-result-order=ipv4first database/seed.js"
+  },
+  "dependencies": {
+    "@mozilla/readability": "^0.5.0",
+    "@sparticuz/chromium": "^143.0.4",
+    "@supabase/supabase-js": "^2.43.0",
+    "cheerio": "^1.0.0",
+    "cors": "^2.8.5",
+    "crawlee": "^3.8.0",
+    "dotenv": "^16.4.0",
+    "express": "^4.18.0",
+    "express-rate-limit": "^7.2.0",
+    "groq-sdk": "^0.5.0",
+    "helmet": "^7.1.0",
+    "jsdom": "^24.0.0",
+    "node-cron": "^3.0.0",
+    "pdf-parse": "^2.4.5",
+    "puppeteer-core": "^24.38.0",
+    "rss-parser": "^3.13.0",
+    "uuid": "^9.0.0",
+    "xlsx": "^0.18.5",
+    "youtube-transcript": "^1.2.1",
+    "zod": "^3.22.0"
+  },
+  "keywords": [
+    "osint",
+    "news-intelligence",
+    "ai",
+    "scraper"
+  ],
+  "license": "UNLICENSED",
+  "private": true
+}

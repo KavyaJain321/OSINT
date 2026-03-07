@@ -1,0 +1,407 @@
+{
+  "clients": [
+    {
+      "id": "c0983ace-178a-4776-8457-e43863be194a",
+      "name": "National Bank of Pakistan",
+      "industry": "Banking & Finance"
+    },
+    {
+      "id": "edb9d578-df66-4c0e-a7df-26040f89e2fe",
+      "name": "Pakistan Telecom Corp",
+      "industry": "Telecommunications"
+    }
+  ],
+  "briefs": [
+    {
+      "id": "5fbf7fdb-7591-4076-91a0-df45f9707df5",
+      "client_id": "c0983ace-178a-4776-8457-e43863be194a",
+      "title": "Middle East Conflict & Oil Supply Risk 2025",
+      "status": "active",
+      "created_at": "2026-03-02T19:54:09.8885+00:00"
+    }
+  ],
+  "sources": [
+    {
+      "id": "137530dc-2237-46de-a7a6-3283291156a6",
+      "client_id": "c0983ace-178a-4776-8457-e43863be194a",
+      "name": "Reuters Energy",
+      "url": "https://www.reuters.com/business/energy/",
+      "source_type": "html",
+      "is_active": true
+    },
+    {
+      "id": "62aaacfe-3d5b-4ca5-aaac-789b7e374bd8",
+      "client_id": "c0983ace-178a-4776-8457-e43863be194a",
+      "name": "Arab News",
+      "url": "https://www.arabnews.com/",
+      "source_type": "html",
+      "is_active": true
+    },
+    {
+      "id": "111af740-6956-4ffb-8f86-5020d3803e5e",
+      "client_id": "c0983ace-178a-4776-8457-e43863be194a",
+      "name": "The Jerusalem Post",
+      "url": "https://www.jpost.com/",
+      "source_type": "html",
+      "is_active": true
+    },
+    {
+      "id": "0c17ccd4-8920-4c01-9cce-5eb796bff597",
+      "client_id": "c0983ace-178a-4776-8457-e43863be194a",
+      "name": "Gulf News",
+      "url": "https://gulfnews.com/",
+      "source_type": "html",
+      "is_active": true
+    },
+    {
+      "id": "5a41752c-90c4-4bc5-96aa-d7ae320fd57f",
+      "client_id": "c0983ace-178a-4776-8457-e43863be194a",
+      "name": "IEA Reports",
+      "url": "https://www.iea.org/reports",
+      "source_type": "pdf",
+      "is_active": true
+    },
+    {
+      "id": "a4ec0b0d-75c5-4244-8a13-41be5bb83ea8",
+      "client_id": "c0983ace-178a-4776-8457-e43863be194a",
+      "name": "Bloomberg Television",
+      "url": "https://www.youtube.com/@BloombergTelevision",
+      "source_type": "youtube",
+      "is_active": true
+    },
+    {
+      "id": "5cfcda85-7752-485d-8d98-0f809931f131",
+      "client_id": "c0983ace-178a-4776-8457-e43863be194a",
+      "name": "CNBC Television",
+      "url": "https://www.youtube.com/@CNBCtelevision",
+      "source_type": "youtube",
+      "is_active": true
+    },
+    {
+      "id": "d7c3b809-5aa5-4068-89d5-e3fb68c1494f",
+      "client_id": "c0983ace-178a-4776-8457-e43863be194a",
+      "name": "CNN",
+      "url": "https://www.youtube.com/@CNN",
+      "source_type": "youtube",
+      "is_active": true
+    },
+    {
+      "id": "aee0b96a-1dab-4fd7-8dcb-5cb409cb4131",
+      "client_id": "c0983ace-178a-4776-8457-e43863be194a",
+      "name": "Collin Rugg",
+      "url": "https://www.youtube.com/@CollinRugg",
+      "source_type": "youtube",
+      "is_active": true
+    },
+    {
+      "id": "5a7920bf-cdd2-4db3-985c-14204ca839ac",
+      "client_id": "c0983ace-178a-4776-8457-e43863be194a",
+      "name": "Al Jazeera English",
+      "url": "https://www.youtube.com/@AlJazeeraEnglish",
+      "source_type": "youtube",
+      "is_active": true
+    },
+    {
+      "id": "b8a99b0f-db96-4bc1-baee-eb341361d1d9",
+      "client_id": "c0983ace-178a-4776-8457-e43863be194a",
+      "name": "BBC News",
+      "url": "https://www.youtube.com/@BBCNews",
+      "source_type": "youtube",
+      "is_active": true
+    },
+    {
+      "id": "a70c7966-d0c3-4fd0-9a60-a5c3635c9322",
+      "client_id": "c0983ace-178a-4776-8457-e43863be194a",
+      "name": "OilPrice.com",
+      "url": "https://www.youtube.com/@OilPricecom",
+      "source_type": "youtube",
+      "is_active": true
+    },
+    {
+      "id": "7675158b-63af-468e-9fa4-dbc6350dc222",
+      "client_id": "c0983ace-178a-4776-8457-e43863be194a",
+      "name": "TRT World",
+      "url": "https://www.youtube.com/@trtworld",
+      "source_type": "youtube",
+      "is_active": true
+    },
+    {
+      "id": "61db8358-ad23-41ec-9d54-c88b4481cadd",
+      "client_id": "c0983ace-178a-4776-8457-e43863be194a",
+      "name": "Euronews",
+      "url": "https://www.youtube.com/@Euronews",
+      "source_type": "youtube",
+      "is_active": true
+    },
+    {
+      "id": "1519f8cc-201e-463f-be73-87c0ec19a95b",
+      "client_id": "c0983ace-178a-4776-8457-e43863be194a",
+      "name": "TRT World",
+      "url": "https://www.youtube.com/@TRTWorld",
+      "source_type": "youtube",
+      "is_active": true
+    },
+    {
+      "id": "041d4dbe-eb94-478f-8a24-931b61c4b349",
+      "client_id": "c0983ace-178a-4776-8457-e43863be194a",
+      "name": "Google News Topic: Oil Markets",
+      "url": "https://news.google.com/topics/CAAqBwgKMOfHlwswtJqyAw",
+      "source_type": "browser",
+      "is_active": true
+    },
+    {
+      "id": "c6b6ea3c-5ae9-4705-a6f8-810783f775c5",
+      "client_id": "c0983ace-178a-4776-8457-e43863be194a",
+      "name": "Bloomberg Energy Dashboard",
+      "url": "https://www.bloomberg.com/energy",
+      "source_type": "browser",
+      "is_active": true
+    },
+    {
+      "id": "9f13107a-2b7d-4033-896e-df019f1ea8ec",
+      "client_id": "c0983ace-178a-4776-8457-e43863be194a",
+      "name": "OilPrice.com",
+      "url": "https://oilprice.com/",
+      "source_type": "browser",
+      "is_active": true
+    },
+    {
+      "id": "5a4fd940-ac4d-4d30-a975-186656a3c94e",
+      "client_id": "c0983ace-178a-4776-8457-e43863be194a",
+      "name": "Reuters Top News",
+      "url": "https://feeds.reuters.com/reuters/topNews",
+      "source_type": "rss",
+      "is_active": true
+    },
+    {
+      "id": "bc564bb5-1d15-4abb-9de3-563fb509ac0d",
+      "client_id": "c0983ace-178a-4776-8457-e43863be194a",
+      "name": "Reuters Middle East News",
+      "url": "https://feeds.reuters.com/reuters/middleeast",
+      "source_type": "rss",
+      "is_active": true
+    },
+    {
+      "id": "ac38a22f-4209-499e-a9cf-5a597b35e5d7",
+      "client_id": "c0983ace-178a-4776-8457-e43863be194a",
+      "name": "BBC News Middle East",
+      "url": "https://feeds.bbci.co.uk/news/world/middle_east/rss.xml",
+      "source_type": "rss",
+      "is_active": true
+    },
+    {
+      "id": "d4198a01-8bb0-405a-9f51-5e82e22a5a9d",
+      "client_id": "c0983ace-178a-4776-8457-e43863be194a",
+      "name": "CNN Middle East News",
+      "url": "https://www.cnn.com/specials/rss/cnn_middle_east",
+      "source_type": "rss",
+      "is_active": true
+    },
+    {
+      "id": "ee1348e1-e68d-40b5-bc8c-8d9ee931fd29",
+      "client_id": "c0983ace-178a-4776-8457-e43863be194a",
+      "name": "The New York Times World News",
+      "url": "https://www.nytimes.com/services/xml/rss/nyt/World.xml",
+      "source_type": "rss",
+      "is_active": true
+    },
+    {
+      "id": "3c16edf4-d604-4f7b-9f9e-995e0b145b84",
+      "client_id": "c0983ace-178a-4776-8457-e43863be194a",
+      "name": "Arab News",
+      "url": "https://www.arabnews.com/rss.xml",
+      "source_type": "rss",
+      "is_active": true
+    },
+    {
+      "id": "fd67cc00-457e-4e89-9e71-f669d0369bea",
+      "client_id": "c0983ace-178a-4776-8457-e43863be194a",
+      "name": "Bloomberg Energy News",
+      "url": "https://www.bloomberg.com/energy/rss",
+      "source_type": "rss",
+      "is_active": true
+    },
+    {
+      "id": "fe44f9af-c176-425d-8f05-71bf8542535f",
+      "client_id": "c0983ace-178a-4776-8457-e43863be194a",
+      "name": "BBC World News",
+      "url": "http://feeds.bbci.co.uk/news/world/rss.xml",
+      "source_type": "rss",
+      "is_active": true
+    },
+    {
+      "id": "c0a5d4e9-fcca-49c6-96d7-9e53c5c29068",
+      "client_id": "c0983ace-178a-4776-8457-e43863be194a",
+      "name": "Google News: supply_chain",
+      "url": "https://news.google.com/rss/search?q=supply_chain&hl=en",
+      "source_type": "rss",
+      "is_active": true
+    },
+    {
+      "id": "fc6f0bff-e6e8-45d3-9e5e-7bdf74bc87a7",
+      "client_id": "c0983ace-178a-4776-8457-e43863be194a",
+      "name": "Al Jazeera",
+      "url": "https://www.aljazeera.com/xml/rss/all.xml",
+      "source_type": "rss",
+      "is_active": true
+    },
+    {
+      "id": "63cb2071-1b1e-476e-bf74-54dc328c666c",
+      "client_id": "c0983ace-178a-4776-8457-e43863be194a",
+      "name": "IEA News",
+      "url": "https://www.iea.org/news",
+      "source_type": "html",
+      "is_active": true
+    },
+    {
+      "id": "8ddb65dc-9f80-46d1-9ae4-a05f6d6b3d75",
+      "client_id": "c0983ace-178a-4776-8457-e43863be194a",
+      "name": "AP News",
+      "url": "https://apnews.com/",
+      "source_type": "html",
+      "is_active": true
+    }
+  ],
+  "brief_recommended_sources": [
+    {
+      "id": "0de705a9-89b1-4de3-99c5-64b321f7eff1",
+      "brief_id": "5fbf7fdb-7591-4076-91a0-df45f9707df5",
+      "name": "Reuters Middle East News",
+      "url": "https://feeds.reuters.com/reuters/middleeast",
+      "approved": false
+    },
+    {
+      "id": "312d858f-9050-4f69-8178-492ee20a5be3",
+      "brief_id": "5fbf7fdb-7591-4076-91a0-df45f9707df5",
+      "name": "The New York Times World News",
+      "url": "https://www.nytimes.com/services/xml/rss/nyt/World.xml",
+      "approved": false
+    },
+    {
+      "id": "259ec570-e520-495c-83db-025e1f3ef85f",
+      "brief_id": "5fbf7fdb-7591-4076-91a0-df45f9707df5",
+      "name": "CNN Middle East News",
+      "url": "https://www.cnn.com/specials/rss/cnn_middle_east",
+      "approved": false
+    },
+    {
+      "id": "10f0fdbc-1f10-42a0-8537-3e07b3807822",
+      "brief_id": "5fbf7fdb-7591-4076-91a0-df45f9707df5",
+      "name": "BBC News Middle East",
+      "url": "https://feeds.bbci.co.uk/news/world/middle_east/rss.xml",
+      "approved": false
+    },
+    {
+      "id": "3b1a6178-31a2-4bc8-bdc7-821c97a232a3",
+      "brief_id": "5fbf7fdb-7591-4076-91a0-df45f9707df5",
+      "name": "Reuters Energy",
+      "url": "https://www.reuters.com/business/energy/",
+      "approved": false
+    },
+    {
+      "id": "2f28e3ce-e7ca-4b56-9056-8907d22583af",
+      "brief_id": "5fbf7fdb-7591-4076-91a0-df45f9707df5",
+      "name": "Google News Topic: Oil Markets",
+      "url": "https://news.google.com/topics/CAAqBwgKMOfHlwswtJqyAw",
+      "approved": false
+    },
+    {
+      "id": "cf6494a6-aece-4d72-a628-4194e4847bab",
+      "brief_id": "5fbf7fdb-7591-4076-91a0-df45f9707df5",
+      "name": "IEA Reports",
+      "url": "https://www.iea.org/reports",
+      "approved": false
+    },
+    {
+      "id": "ae387baa-7cc0-4721-a86b-ccbc81c103eb",
+      "brief_id": "5fbf7fdb-7591-4076-91a0-df45f9707df5",
+      "name": "CNBC Television",
+      "url": "https://www.youtube.com/@CNBCtelevision",
+      "approved": false
+    },
+    {
+      "id": "30ef755a-9de3-4033-be93-dd2f99a6f71b",
+      "brief_id": "5fbf7fdb-7591-4076-91a0-df45f9707df5",
+      "name": "Bloomberg Television",
+      "url": "https://www.youtube.com/@BloombergTelevision",
+      "approved": false
+    },
+    {
+      "id": "69a6be2a-1e91-4b70-b824-c5138b4f0835",
+      "brief_id": "5fbf7fdb-7591-4076-91a0-df45f9707df5",
+      "name": "CNN",
+      "url": "https://www.youtube.com/@CNN",
+      "approved": false
+    },
+    {
+      "id": "b4d163ae-f444-4a86-ba66-c53c18865662",
+      "brief_id": "5fbf7fdb-7591-4076-91a0-df45f9707df5",
+      "name": "BBC News",
+      "url": "https://www.youtube.com/@BBCNews",
+      "approved": false
+    },
+    {
+      "id": "633192dc-9a22-4712-802e-bf9d12575603",
+      "brief_id": "5fbf7fdb-7591-4076-91a0-df45f9707df5",
+      "name": "Reuters Top News",
+      "url": "https://feeds.reuters.com/reuters/topNews",
+      "approved": false
+    },
+    {
+      "id": "661875fa-fc73-4482-890c-172d8932a940",
+      "brief_id": "5fbf7fdb-7591-4076-91a0-df45f9707df5",
+      "name": "BBC World News",
+      "url": "http://feeds.bbci.co.uk/news/world/rss.xml",
+      "approved": false
+    },
+    {
+      "id": "c3893e9c-4a63-4046-b99c-80af484e9ab1",
+      "brief_id": "5fbf7fdb-7591-4076-91a0-df45f9707df5",
+      "name": "Al Jazeera",
+      "url": "https://www.aljazeera.com/xml/rss/all.xml",
+      "approved": false
+    },
+    {
+      "id": "2d941d31-2d00-4694-8238-fcf0bd9a4bac",
+      "brief_id": "5fbf7fdb-7591-4076-91a0-df45f9707df5",
+      "name": "Arab News",
+      "url": "https://www.arabnews.com/rss.xml",
+      "approved": false
+    },
+    {
+      "id": "469bf041-0ebe-434d-9e98-25914cfbc43d",
+      "brief_id": "5fbf7fdb-7591-4076-91a0-df45f9707df5",
+      "name": "Bloomberg Energy News",
+      "url": "https://www.bloomberg.com/energy/rss",
+      "approved": false
+    },
+    {
+      "id": "a1f445aa-fba2-49c8-b6fa-460866d6b465",
+      "brief_id": "5fbf7fdb-7591-4076-91a0-df45f9707df5",
+      "name": "AP News",
+      "url": "https://apnews.com/",
+      "approved": false
+    },
+    {
+      "id": "1cf89150-a641-4bb9-8e40-322d0ebca52a",
+      "brief_id": "5fbf7fdb-7591-4076-91a0-df45f9707df5",
+      "name": "IEA News",
+      "url": "https://www.iea.org/news",
+      "approved": false
+    },
+    {
+      "id": "400e66bb-811d-476c-bc9f-a754cea42a34",
+      "brief_id": "5fbf7fdb-7591-4076-91a0-df45f9707df5",
+      "name": "Gulf News",
+      "url": "https://gulfnews.com/",
+      "approved": false
+    },
+    {
+      "id": "5d29e1db-93f7-4dce-a96f-7390247e3eca",
+      "brief_id": "5fbf7fdb-7591-4076-91a0-df45f9707df5",
+      "name": "Arab News",
+      "url": "https://www.arabnews.com/",
+      "approved": false
+    }
+  ]
+}

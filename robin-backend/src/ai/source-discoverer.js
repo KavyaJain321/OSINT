@@ -1,0 +1,464 @@
+// ============================================================
+// Source Discoverer — AI-powered source recommendation engine
+// Two strategies: LLM recommendations + hardcoded quality library
+// ============================================================
+
+import { groqChat } from '../lib/groq.js';
+import { log } from '../lib/logger.js';
+
+// ── Curated source library by industry + region ────────────
+// Global = truly general-purpose. Industry/region = specific.
+const SOURCE_LIBRARY = {
+    // ── GLOBAL (general-purpose only — added to ALL briefs) ──
+    global: [
+        { name: 'Reuters Top News', url: 'https://feeds.reuters.com/reuters/topNews', source_type: 'rss', expected_hit_rate: 'medium' },
+        { name: 'BBC World News', url: 'http://feeds.bbci.co.uk/news/world/rss.xml', source_type: 'rss', expected_hit_rate: 'medium' },
+        { name: 'AP News', url: 'https://apnews.com/', source_type: 'html', expected_hit_rate: 'medium' },
+        { name: 'Al Jazeera English', url: 'https://www.youtube.com/@AlJazeeraEnglish', source_type: 'youtube', expected_hit_rate: 'medium' },
+    ],
+
+    // ── INDUSTRY-SPECIFIC ────────────────────────────────────
+    banking: [
+        { name: 'Reuters Finance', url: 'https://feeds.reuters.com/reuters/businessNews', source_type: 'rss', expected_hit_rate: 'high' },
+        { name: 'Financial Times', url: 'https://www.ft.com/', source_type: 'html', expected_hit_rate: 'high' },
+        { name: 'Bloomberg Markets', url: 'https://www.bloomberg.com/markets', source_type: 'html', expected_hit_rate: 'high' },
+        { name: 'The Banker', url: 'https://www.thebanker.com/', source_type: 'html', expected_hit_rate: 'high' },
+        { name: 'FATF News', url: 'https://www.fatf-gafi.org/en/topics/fatf-news.html', source_type: 'html', expected_hit_rate: 'high' },
+        { name: 'BIS Publications', url: 'https://www.bis.org/press/', source_type: 'html', expected_hit_rate: 'medium' },
+        { name: 'IMF News', url: 'https://www.imf.org/en/News/rss', source_type: 'rss', expected_hit_rate: 'medium' },
+        { name: 'Bloomberg TV', url: 'https://www.youtube.com/@BloombergTelevision', source_type: 'youtube', expected_hit_rate: 'high' },
+        { name: 'BIS Working Papers', url: 'https://www.bis.org/list/wpapers/index.htm', source_type: 'pdf', expected_hit_rate: 'medium' },
+        { name: 'FATF Reports', url: 'https://www.fatf-gafi.org/en/publications.html', source_type: 'pdf', expected_hit_rate: 'high' },
+    ],
+    finance: [
+        { name: 'WSJ Markets', url: 'https://feeds.a.dj.com/rss/RSSMarketsMain.xml', source_type: 'rss', expected_hit_rate: 'high' },
+        { name: 'Investing.com', url: 'https://www.investing.com/rss/news.rss', source_type: 'rss', expected_hit_rate: 'medium' },
+        { name: 'Financial Times', url: 'https://www.ft.com/', source_type: 'html', expected_hit_rate: 'high' },
+        { name: 'Bloomberg Markets', url: 'https://www.bloomberg.com/markets', source_type: 'html', expected_hit_rate: 'high' },
+        { name: 'Yahoo Finance', url: 'https://www.youtube.com/@YahooFinance', source_type: 'youtube', expected_hit_rate: 'high' },
+        { name: 'CNBC Television', url: 'https://www.youtube.com/@CNBCtelevision', source_type: 'youtube', expected_hit_rate: 'medium' },
+        { name: 'IMF Working Papers', url: 'https://www.imf.org/en/Publications/WP', source_type: 'pdf', expected_hit_rate: 'medium' },
+    ],
+    education: [
+        { name: 'Chronicle of Higher Ed', url: 'https://www.chronicle.com/', source_type: 'html', expected_hit_rate: 'high' },
+        { name: 'Inside Higher Ed', url: 'https://www.insidehighered.com/', source_type: 'html', expected_hit_rate: 'high' },
+        { name: 'Times Higher Ed', url: 'https://www.timeshighereducation.com/', source_type: 'html', expected_hit_rate: 'high' },
+        { name: 'NPR Education', url: 'https://www.npr.org/sections/education/rss.xml', source_type: 'rss', expected_hit_rate: 'medium' },
+        { name: 'BBC Education', url: 'https://feeds.bbci.co.uk/news/education/rss.xml', source_type: 'rss', expected_hit_rate: 'medium' },
+        { name: 'PBS NewsHour', url: 'https://www.youtube.com/@NewsHour', source_type: 'youtube', expected_hit_rate: 'medium' },
+        { name: 'Brookings Institution', url: 'https://www.youtube.com/@BrookingsInstitution', source_type: 'youtube', expected_hit_rate: 'medium' },
+        { name: 'IIE Publications', url: 'https://www.iie.org/Research-and-Insights/Publications', source_type: 'pdf', expected_hit_rate: 'high' },
+        { name: 'UNESCO Reports', url: 'https://www.unesco.org/en/documents', source_type: 'pdf', expected_hit_rate: 'medium' },
+    ],
+    technology: [
+        { name: 'TechCrunch', url: 'https://techcrunch.com/feed/', source_type: 'rss', expected_hit_rate: 'high' },
+        { name: 'Ars Technica', url: 'https://feeds.arstechnica.com/arstechnica/index', source_type: 'rss', expected_hit_rate: 'medium' },
+        { name: 'The Verge', url: 'https://www.theverge.com/', source_type: 'html', expected_hit_rate: 'medium' },
+        { name: 'Wired', url: 'https://www.wired.com/', source_type: 'html', expected_hit_rate: 'medium' },
+        { name: 'WION Tech', url: 'https://www.youtube.com/@WIONNews', source_type: 'youtube', expected_hit_rate: 'medium' },
+    ],
+    healthcare: [
+        { name: 'STAT News', url: 'https://www.statnews.com/', source_type: 'html', expected_hit_rate: 'high' },
+        { name: 'The Lancet', url: 'https://www.thelancet.com/', source_type: 'html', expected_hit_rate: 'high' },
+        { name: 'CDC Reports', url: 'https://www.cdc.gov/media/releases/', source_type: 'html', expected_hit_rate: 'medium' },
+        { name: 'WHO Publications', url: 'https://www.who.int/publications', source_type: 'pdf', expected_hit_rate: 'medium' },
+    ],
+    energy: [
+        { name: 'Reuters Energy', url: 'https://www.reuters.com/business/energy/', source_type: 'html', expected_hit_rate: 'high' },
+        { name: 'IEA News', url: 'https://www.iea.org/news', source_type: 'html', expected_hit_rate: 'medium' },
+        { name: 'IEA Reports', url: 'https://www.iea.org/reports', source_type: 'pdf', expected_hit_rate: 'high' },
+        { name: 'Collin Rugg', url: 'https://www.youtube.com/@CollinRugg', source_type: 'youtube', expected_hit_rate: 'medium' },
+        { name: 'OilPrice.com', url: 'https://www.youtube.com/@OilPricecom', source_type: 'youtube', expected_hit_rate: 'medium' },
+        { name: 'CNBC Television', url: 'https://www.youtube.com/@CNBCtelevision', source_type: 'youtube', expected_hit_rate: 'high' },
+        { name: 'Bloomberg Television', url: 'https://www.youtube.com/@BloombergTelevision', source_type: 'youtube', expected_hit_rate: 'high' },
+    ],
+
+    // ── REGIONAL ─────────────────────────────────────────────
+    pakistan: [
+        { name: 'Dawn News', url: 'https://www.dawn.com/feeds/home', source_type: 'rss', expected_hit_rate: 'high' },
+        { name: 'The News Pakistan', url: 'https://www.thenews.com.pk/rss/1/3', source_type: 'rss', expected_hit_rate: 'high' },
+        { name: 'Geo News', url: 'https://www.geo.tv/rss', source_type: 'rss', expected_hit_rate: 'high' },
+        { name: 'Business Recorder', url: 'https://www.brecorder.com/', source_type: 'html', expected_hit_rate: 'high' },
+        { name: 'Geo News YouTube', url: 'https://www.youtube.com/@gaborearth', source_type: 'youtube', expected_hit_rate: 'high' },
+        { name: 'ARY News YouTube', url: 'https://www.youtube.com/@ARYNewsLiveOfficial', source_type: 'youtube', expected_hit_rate: 'high' },
+        { name: 'SBP Circulars', url: 'https://www.sbp.org.pk/bsrvd/list.asp', source_type: 'pdf', expected_hit_rate: 'high' },
+    ],
+    'united states': [
+        { name: 'NYT Top Stories', url: 'https://www.nytimes.com/services/xml/rss/nyt/HomePage.xml', source_type: 'rss', expected_hit_rate: 'medium' },
+        { name: 'Washington Post', url: 'https://www.washingtonpost.com/', source_type: 'html', expected_hit_rate: 'medium' },
+        { name: 'PBS NewsHour', url: 'https://www.youtube.com/@NewsHour', source_type: 'youtube', expected_hit_rate: 'medium' },
+        { name: 'Federal Register', url: 'https://www.federalregister.gov/', source_type: 'browser', expected_hit_rate: 'medium' },
+        { name: 'US GPO', url: 'https://www.gpo.gov/', source_type: 'pdf', expected_hit_rate: 'medium' },
+    ],
+    'middle east': [
+        { name: 'Al Jazeera', url: 'https://www.aljazeera.com/xml/rss/all.xml', source_type: 'rss', expected_hit_rate: 'medium' },
+        { name: 'Gulf News', url: 'https://gulfnews.com/', source_type: 'html', expected_hit_rate: 'medium' },
+        { name: 'Arab News', url: 'https://www.arabnews.com/rss.xml', source_type: 'rss', expected_hit_rate: 'medium' },
+        { name: 'TRT World', url: 'https://www.youtube.com/@trtworld', source_type: 'youtube', expected_hit_rate: 'medium' },
+    ],
+    india: [
+        { name: 'Economic Times', url: 'https://economictimes.indiatimes.com/rssfeedstopstories.cms', source_type: 'rss', expected_hit_rate: 'high' },
+        { name: 'Moneycontrol', url: 'https://www.moneycontrol.com/rss/MCtopnews.xml', source_type: 'rss', expected_hit_rate: 'high' },
+        { name: 'NDTV YouTube', url: 'https://www.youtube.com/@ndtv', source_type: 'youtube', expected_hit_rate: 'high' },
+        { name: 'RBI Notifications', url: 'https://www.rbi.org.in/Scripts/NotificationUser.aspx', source_type: 'pdf', expected_hit_rate: 'high' },
+    ],
+    uk: [
+        { name: 'BBC UK', url: 'https://feeds.bbci.co.uk/news/uk/rss.xml', source_type: 'rss', expected_hit_rate: 'medium' },
+        { name: 'The Guardian', url: 'https://www.theguardian.com/uk', source_type: 'html', expected_hit_rate: 'medium' },
+        { name: 'Sky News', url: 'https://www.youtube.com/@SkyNews', source_type: 'youtube', expected_hit_rate: 'medium' },
+    ],
+    china: [
+        { name: 'South China Morning Post', url: 'https://www.scmp.com/rss', source_type: 'rss', expected_hit_rate: 'high' },
+        { name: 'CGTN', url: 'https://www.youtube.com/@CGTNOfficial', source_type: 'youtube', expected_hit_rate: 'medium' },
+    ],
+};
+
+// ── LLM-powered source discovery (Layer 4) ─────────────────
+async function discoverSourcesViaLLM(context) {
+    try {
+        const prompt = `You are an OSINT source analyst. Your job: recommend REAL, ACTIVE web sources for continuous intelligence monitoring.
+
+CLIENT CONTEXT:
+- Industry: ${context.industry}
+- Core Problem: ${context.core_problem}
+- Risk Domains: ${context.risk_domains?.join(', ')}
+- Key Entities: ${context.entities_of_interest?.join(', ')}
+- Geography: ${context.geographic_focus?.join(', ')}
+
+YOU MUST recommend sources across ALL 7 source types. Provide EXACTLY 30 sources:
+
+1. RSS FEEDS (6 sources) — news wire feeds, newspaper RSS, blog feeds
+   Example: {"name": "Reuters Top News", "url": "https://feeds.reuters.com/reuters/topNews", "source_type": "rss"}
+
+2. HTML WEBSITES (5 sources) — news sites, portals, government pages without RSS
+   Example: {"name": "Business Recorder", "url": "https://www.brecorder.com/", "source_type": "html"}
+
+3. YOUTUBE CHANNELS (8 sources) — news channels, press briefings, analysis channels
+   IMPORTANT: ONLY use channel URLs in these formats:
+   - https://www.youtube.com/@ChannelHandle
+   - https://www.youtube.com/channel/UCxxxxxxxxx
+   NEVER use: youtube.com/results?search_query=... (search pages don't work)
+   Example: {"name": "Geo News", "url": "https://www.youtube.com/@GeoNews", "source_type": "youtube"}
+
+4. PDF DOCUMENT SOURCES (4 sources) — regulatory filings, research papers, government gazettes
+   Example: {"name": "SBP Circulars", "url": "https://www.sbp.org.pk/bsrvd/list.asp", "source_type": "pdf"}
+
+5. BROWSER-RENDERED SITES (3 sources) — JS-heavy portals, dashboards, SPAs
+   Example: {"name": "Google News Topic", "url": "https://news.google.com/topics/CAAqBwgKMOfHlgswtJqyAw", "source_type": "browser"}
+
+6. REDDIT SUBREDDITS (4 sources) — relevant communities for grassroots intelligence
+   Example: {"name": "r/india", "url": "https://www.reddit.com/r/india/", "source_type": "reddit"}
+
+7. GOOGLE NEWS SEARCHES (3 sources) — Google News RSS for specific queries
+   URL format: https://news.google.com/rss/search?q={query}&hl=en
+   Example: {"name": "Google News: Banking Regulation", "url": "https://news.google.com/rss/search?q=banking+regulation&hl=en", "source_type": "google_news"}
+
+CRITICAL RULES:
+- ONLY real, currently active URLs that exist in 2024-2026
+- YouTube URLs must be channel URLs (youtube.com/@ChannelName or youtube.com/c/ChannelName)
+- PDF sources should be pages that LIST PDFs (not individual PDF files)
+- Reddit sources should be subreddit URLs
+- Google News RSS queries should use the exact URL format shown above with '+' for spaces
+- Geographic mix: 40% international, 60% region-specific to "${context.geographic_focus?.join(', ') || 'global'}"
+- Each source MUST have all fields: name, url, source_type, expected_hit_rate, rationale
+
+Return ONLY valid JSON:
+{
+  "sources": [
+    {
+      "name": "Source Display Name",
+      "url": "https://exact-url.com/path",
+      "source_type": "rss|html|browser|pdf|youtube|reddit|google_news",
+      "expected_hit_rate": "high|medium|low",
+      "rationale": "why this source is relevant (1 sentence)"
+    }
+  ]
+}`;
+
+        const resp = await groqChat(
+            [{ role: 'user', content: prompt }],
+            { temperature: 0.3, max_tokens: 3000, response_format: { type: 'json_object' } }
+        );
+
+        const parsed = JSON.parse(resp.choices[0].message.content);
+        return parsed.sources || [];
+    } catch (err) {
+        log.ai.error('LLM source discovery failed (will use fallback layers)', { error: err.message });
+        return []; // graceful — other layers still contribute
+    }
+}
+
+// ── Smart library lookup — industry-aware, no pollution ────
+const INDUSTRY_ALIASES = {
+    banking: ['banking', 'bank', 'financial services'],
+    finance: ['finance', 'investment', 'capital markets', 'stock', 'fintech'],
+    education: ['education', 'university', 'academic', 'higher education', 'school'],
+    technology: ['technology', 'tech', 'software', 'ai', 'cybersecurity', 'it'],
+    healthcare: ['healthcare', 'health', 'pharma', 'pharmaceutical', 'medical', 'biotech'],
+    energy: ['energy', 'oil', 'gas', 'renewable', 'power', 'utilities'],
+};
+
+function lookupLibrarySources(context) {
+    const hits = new Map();
+    const addSrc = (list) => list?.forEach(s => hits.set(s.url, s));
+
+    // Always include global (truly general-purpose only)
+    addSrc(SOURCE_LIBRARY.global);
+
+    // Industry match via aliases
+    const industry = (context.industry || '').toLowerCase();
+    for (const [category, aliases] of Object.entries(INDUSTRY_ALIASES)) {
+        if (aliases.some(a => industry.includes(a))) {
+            addSrc(SOURCE_LIBRARY[category]);
+        }
+    }
+    // Direct match fallback
+    if (SOURCE_LIBRARY[industry]) addSrc(SOURCE_LIBRARY[industry]);
+
+    // Geographic match — normalize common names
+    for (const geo of (context.geographic_focus || [])) {
+        const g = geo.toLowerCase().trim();
+        if (SOURCE_LIBRARY[g]) addSrc(SOURCE_LIBRARY[g]);
+        if (g.includes('usa') || g.includes('america') || g.includes('united states') || g === 'us') addSrc(SOURCE_LIBRARY['united states']);
+        if (g.includes('uk') || g.includes('britain') || g.includes('united kingdom')) addSrc(SOURCE_LIBRARY['uk']);
+        if (g.includes('china') || g.includes('chinese')) addSrc(SOURCE_LIBRARY['china']);
+        if (g.includes('pakistan')) addSrc(SOURCE_LIBRARY['pakistan']);
+        if (g.includes('india')) addSrc(SOURCE_LIBRARY['india']);
+        if (g.includes('middle east') || g.includes('gulf') || g.includes('arab')) addSrc(SOURCE_LIBRARY['middle east']);
+    }
+
+    // NOTE: We do NOT loop risk_domains anymore.
+    // This prevents FATF/BIS from polluting non-financial briefs.
+
+    return [...hits.values()];
+}
+
+// ── Merge and deduplicate sources ──────────────────────────
+function mergeAndRankSources(libSources, llmSources) {
+    const seen = new Map();
+
+    // Library sources take priority (curated)
+    for (const s of libSources) {
+        seen.set(normalizeUrl(s.url), { ...s, rationale: s.rationale || 'Curated industry source' });
+    }
+
+    // Add LLM sources not already in library
+    for (const s of llmSources) {
+        const key = normalizeUrl(s.url);
+        if (!seen.has(key) && s.name && s.url && s.source_type) {
+            seen.set(key, s);
+        }
+    }
+
+    // Sort: high hit rate first, then by type preference (rss > html > rest)
+    const typeOrder = { rss: 0, html: 1, browser: 2, pdf: 3, youtube: 4 };
+    const rateOrder = { high: 0, medium: 1, low: 2 };
+
+    return [...seen.values()]
+        .sort((a, b) =>
+            (rateOrder[a.expected_hit_rate] ?? 1) - (rateOrder[b.expected_hit_rate] ?? 1) ||
+            (typeOrder[a.source_type] ?? 2) - (typeOrder[b.source_type] ?? 2)
+        )
+        .slice(0, 30); // max 30 recommended sources per brief
+}
+
+function normalizeUrl(url) {
+    try { return new URL(url).hostname + new URL(url).pathname; }
+    catch { return url; }
+}
+
+// ── URL Validation ─────────────────────────────────────────
+
+/**
+ * Validate a source URL is accessible via HTTP GET.
+ * Uses dynamic import for http/https (ESM compatible).
+ * @param {string} url
+ * @param {number} timeoutMs
+ * @returns {Promise<{url, accessible, status_code, content_type}>}
+ */
+async function validateSourceUrlSafe(url, timeoutMs = 5000) {
+    try {
+        const { default: https } = await import('https');
+        const { default: http } = await import('http');
+
+        return new Promise((resolve) => {
+            try {
+                const urlObj = new URL(url);
+                const lib = urlObj.protocol === 'https:' ? https : http;
+
+                const req = lib.get(url, {
+                    timeout: timeoutMs,
+                    headers: { 'User-Agent': 'Mozilla/5.0 (compatible; RobinBot/1.0; OSINT Monitor)' },
+                }, (res) => {
+                    resolve({
+                        url,
+                        accessible: res.statusCode >= 200 && res.statusCode < 400,
+                        status_code: res.statusCode,
+                        content_type: res.headers['content-type'] ?? 'unknown',
+                    });
+                    res.destroy();
+                });
+
+                req.on('error', () => resolve({ url, accessible: false, status_code: 'error' }));
+                req.on('timeout', () => { req.destroy(); resolve({ url, accessible: false, status_code: 'timeout' }); });
+            } catch {
+                resolve({ url, accessible: false, status_code: 'invalid_url' });
+            }
+        });
+    } catch {
+        return { url, accessible: false, status_code: 'error' };
+    }
+}
+
+/**
+ * Validate all source URLs with concurrency limit.
+ */
+async function validateSources(sources, concurrency = 5) {
+    const results = [];
+    for (let i = 0; i < sources.length; i += concurrency) {
+        const batch = sources.slice(i, i + concurrency);
+        const batchResults = await Promise.all(
+            batch.map(s => validateSourceUrlSafe(s.url))
+        );
+        results.push(...batchResults);
+    }
+    return results;
+}
+
+// ── Public API ─────────────────────────────────────────────
+
+// ── Layer 2: Entity-specific auto-discovery ────────────────
+function discoverEntitySources(context) {
+    const entitySources = [];
+    const entities = context.entities_of_interest || [];
+
+    for (const entity of entities.slice(0, 5)) {
+        // Google News RSS for this entity — works great
+        entitySources.push({
+            name: `Google News: ${entity}`,
+            url: `https://news.google.com/rss/search?q=${encodeURIComponent(entity)}&hl=en`,
+            source_type: 'google_news',
+            expected_hit_rate: 'high',
+            rationale: `Automated Google News monitoring for ${entity}`,
+        });
+        // NOTE: We no longer add youtube.com/results?search_query= URLs here.
+        // Those are search result pages, not channel feeds — the YouTube crawler
+        // cannot extract reliable video lists from them.
+    }
+
+    return entitySources;
+}
+
+// ── Layer 5: News API aggregator sources ───────────────────
+function discoverNewsApiSources(context) {
+    const apiSources = [];
+    const topic = context.core_problem || context.industry;
+
+    if (topic) {
+        apiSources.push({
+            name: `Google News: ${topic.substring(0, 40)}`,
+            url: `https://news.google.com/rss/search?q=${encodeURIComponent(topic)}&hl=en`,
+            source_type: 'google_news',
+            expected_hit_rate: 'high',
+            rationale: `Broad topic monitoring via Google News`,
+        });
+    }
+
+    // Add risk-domain-specific news feeds
+    for (const risk of (context.risk_domains || []).slice(0, 3)) {
+        apiSources.push({
+            name: `Google News: ${risk}`,
+            url: `https://news.google.com/rss/search?q=${encodeURIComponent(risk)}&hl=en`,
+            source_type: 'google_news',
+            expected_hit_rate: 'medium',
+            rationale: `Risk-domain monitoring: ${risk}`,
+        });
+    }
+
+    return apiSources;
+}
+
+/**
+ * Discover and recommend sources for a client brief context.
+ * 5-Layer architecture:
+ *   L1: Client-provided (from document upload — handled elsewhere)
+ *   L2: Entity-specific auto-discovery
+ *   L3: Industry/region curated library
+ *   L4: LLM-recommended (30 sources)
+ *   L5: News API aggregators (Google News RSS)
+ *
+ * @param {Object} context - Structured context from keyword-generator's extractBriefContext()
+ * @returns {Promise<Array>} Array of recommended source objects with validation status
+ */
+export async function discoverSourcesForBrief(context) {
+    const startTime = Date.now();
+    log.ai.info('Source discovery started (5-layer)', { industry: context.industry, geo: context.geographic_focus });
+
+    try {
+        // L2: Entity-specific sources (instant)
+        const entitySources = discoverEntitySources(context);
+
+        // L3 + L4: Library + LLM (parallel)
+        const [libSources, llmSources] = await Promise.all([
+            lookupLibrarySources(context),
+            discoverSourcesViaLLM(context),
+        ]);
+
+        // L5: News API aggregator sources (instant)
+        const apiSources = discoverNewsApiSources(context);
+
+        // Merge all layers
+        const allSources = [...entitySources, ...libSources, ...llmSources, ...apiSources];
+        const merged = mergeAndRankSources(
+            [...entitySources, ...libSources, ...apiSources],
+            llmSources
+        );
+
+        // Validate all source URLs for accessibility
+        log.ai.info('Validating source URLs...', { count: merged.length });
+        const validationResults = await validateSources(merged);
+
+        const sourcesWithValidation = merged.map((source, i) => ({
+            ...source,
+            url_validated: validationResults[i].accessible,
+            url_status_code: String(validationResults[i].status_code ?? 'unknown'),
+            validation_note: validationResults[i].accessible
+                ? 'URL accessible'
+                : `URL unreachable (${validationResults[i].status_code}) — verify before activating`,
+        }));
+
+        const accessible = sourcesWithValidation.filter(s => s.url_validated).length;
+        log.ai.info('Source discovery complete (5-layer)', {
+            entity: entitySources.length,
+            library: libSources.length,
+            llm: llmSources.length,
+            api: apiSources.length,
+            merged: merged.length,
+            accessible,
+            unreachable: merged.length - accessible,
+            ms: Date.now() - startTime,
+        });
+
+        return sourcesWithValidation;
+    } catch (err) {
+        log.ai.error('Source discovery pipeline error — returning fallback sources without validation', { error: err.message });
+        // Fall back to library + entity + api (skip validation to ensure sources are returned)
+        const entitySources = discoverEntitySources(context);
+        const libSources = lookupLibrarySources(context);
+        const apiSources = discoverNewsApiSources(context);
+        const fallback = mergeAndRankSources([...entitySources, ...libSources, ...apiSources], []);
+        // Skip URL validation in fallback — better to have unvalidated sources than none
+        try {
+            const validationResults = await validateSources(fallback);
+            return fallback.map((source, i) => ({
+                ...source,
+                url_validated: validationResults[i].accessible,
+                url_status_code: String(validationResults[i].status_code ?? 'unknown'),
+            }));
+        } catch (valErr) {
+            log.ai.error('URL validation also failed — returning sources without validation', { error: valErr.message });
+            return fallback.map(source => ({ ...source, url_validated: null, url_status_code: 'skipped' }));
+        }
+    }
+}
+

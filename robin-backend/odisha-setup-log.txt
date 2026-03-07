@@ -1,0 +1,27 @@
+﻿[2026-03-02T21:18:20.517Z] STEP 1: Creating Government of Odisha client...
+[2026-03-02T21:18:20.837Z] Γ£à Client created: Government of Odisha (ID: 7b5390a0-0d5b-419e-84b4-533fd9c44d36)
+[2026-03-02T21:18:20.837Z] STEP 2: Creating admin auth user...
+[2026-03-02T21:18:21.485Z] Γ£à Admin user created: admin@odisha.gov.in (ID: ad94c6cf-b62b-4f1f-accd-bb3a9297885f)
+[2026-03-02T21:18:21.485Z] STEP 3: Creating analyst auth user...
+[2026-03-02T21:18:21.848Z] Γ£à Analyst user created: analyst@odisha.gov.in (ID: 15ab8332-69a3-4616-9814-70a577279f0e)
+[2026-03-02T21:18:21.848Z] STEP 4: Creating intelligence brief...
+[2026-03-02T21:18:22.139Z] Γ£à Brief created: "Odisha State Government ΓÇö Media Intelligence & Public Sentiment Monitoring" (ID: 821bda4b-c84c-4999-b85a-a380185f9e3f)
+[2026-03-02T21:18:22.139Z] STEP 5: Inserting 116 precision keywords...
+[2026-03-02T21:18:22.353Z] Γ£à 116 keywords inserted & approved
+[2026-03-02T21:18:22.353Z] STEP 6: Inserting 78 Odisha media sources into brief_recommended_sources...
+[2026-03-02T21:18:22.531Z] Γ£à 78 sources inserted into brief_recommended_sources
+[2026-03-02T21:18:22.531Z] STEP 7: Inserting 78 active sources into sources table (for scraper)...
+[2026-03-02T21:18:31.985Z] Γ£à 78/78 active sources added to scraper
+[2026-03-02T21:18:31.985Z] 
+========================================
+[2026-03-02T21:18:31.985Z]   GOVERNMENT OF ODISHA ΓÇö SETUP COMPLETE
+[2026-03-02T21:18:31.985Z] ========================================
+[2026-03-02T21:18:31.985Z]   Client ID  : 7b5390a0-0d5b-419e-84b4-533fd9c44d36
+[2026-03-02T21:18:31.985Z]   Brief ID   : 821bda4b-c84c-4999-b85a-a380185f9e3f
+[2026-03-02T21:18:31.985Z]   Admin Login: admin@odisha.gov.in / OdishaGovt@ROBIN2026
+[2026-03-02T21:18:31.985Z]   Analyst    : analyst@odisha.gov.in / OdishaAnalyst@2026
+[2026-03-02T21:18:31.986Z]   Keywords   : 116
+[2026-03-02T21:18:31.986Z]   Sources    : 78
+[2026-03-02T21:18:31.986Z]   Errors     : 0
+[2026-03-02T21:18:31.987Z] 
+  Full results saved to: odisha-setup-results.json

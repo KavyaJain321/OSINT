@@ -1,0 +1,1529 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROBIN OSINT — Command Center</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #0a0e1a;
+            --bg-card: #111827;
+            --bg-hover: #1a2332;
+            --border: #1e3048;
+            --border-light: #2a3f5f;
+            --accent: #3b82f6;
+            --accent-glow: rgba(59, 130, 246, .15);
+            --green: #10b981;
+            --red: #ef4444;
+            --yellow: #eab308;
+            --orange: #f97316;
+            --purple: #a855f7;
+            --cyan: #06b6d4;
+            --text: #e8edf5;
+            --text-sec: #94a3b8;
+            --text-dim: #475569;
+            --radius: 12px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* ── Layout ── */
+        .shell {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 220px;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 28px;
+        }
+
+        /* ── Sidebar ── */
+        .brand {
+            padding: 20px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .brand h1 {
+            font-size: 18px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent), var(--cyan));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand p {
+            font-size: 10px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-top: 2px;
+        }
+
+        .nav {
+            flex: 1;
+            padding: 12px 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: none;
+            background: none;
+            color: var(--text-sec);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all .15s;
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
+        }
+
+        .nav-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text);
+        }
+
+        .nav-btn.active {
+            background: var(--accent-glow);
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .nav-btn .icon {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .nav-btn .badge {
+            margin-left: auto;
+            background: var(--accent);
+            color: #fff;
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+
+        .sidebar-footer {
+            padding: 12px 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .status-dot {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--text-sec);
+        }
+
+        .status-dot::before {
+            content: '';
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: .4;
+            }
+        }
+
+        /* ── Page Header ── */
+        .page-header {
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .page-header h2 {
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .page-header p {
+            font-size: 13px;
+            color: var(--text-sec);
+            margin-top: 4px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text);
+            cursor: pointer;
+            transition: all .15s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn:hover {
+            border-color: var(--accent);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .btn-success {
+            background: var(--green);
+            border-color: var(--green);
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
+        /* ── Metric Cards ── */
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .metric {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 60px;
+            height: 60px;
+            border-radius: 0 0 0 60px;
+            opacity: .08;
+        }
+
+        .metric .label {
+            font-size: 11px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .metric .value {
+            font-size: 28px;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .metric .sub {
+            font-size: 11px;
+            color: var(--text-sec);
+            margin-top: 4px;
+        }
+
+        .metric .icon-bg {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            font-size: 22px;
+            opacity: .5;
+        }
+
+        /* ── Cards / Panels ── */
+        .panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+
+        .panel-head {
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-head h3 {
+            font-size: 14px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .panel-head .count {
+            font-size: 10px;
+            background: var(--accent-glow);
+            color: var(--accent);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+
+        .panel-body {
+            padding: 16px 18px;
+        }
+
+        .panel-body.scroll {
+            max-height: 420px;
+            overflow-y: auto;
+        }
+
+        .panel-empty {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-dim);
+            font-size: 13px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media(max-width:1100px) {
+
+            .grid-2,
+            .grid-3 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ── Tab Content ── */
+        .tab-page {
+            display: none;
+        }
+
+        .tab-page.active {
+            display: block;
+        }
+
+        /* ── Article Cards ── */
+        .article {
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(30, 48, 72, .4);
+        }
+
+        .article:last-child {
+            border-bottom: none;
+        }
+
+        .article-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .article-title a {
+            color: var(--text);
+            text-decoration: none;
+        }
+
+        .article-title a:hover {
+            color: var(--accent);
+        }
+
+        .article-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            font-size: 11px;
+            color: var(--text-sec);
+            margin-bottom: 6px;
+        }
+
+        .pill {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .pill-pos {
+            background: rgba(16, 185, 129, .12);
+            color: var(--green);
+        }
+
+        .pill-neg {
+            background: rgba(239, 68, 68, .12);
+            color: var(--red);
+        }
+
+        .pill-neu {
+            background: rgba(71, 85, 105, .2);
+            color: var(--text-sec);
+        }
+
+        .pill-kw {
+            background: var(--accent-glow);
+            color: var(--accent);
+        }
+
+        .importance-mini {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .imp-bar {
+            width: 40px;
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .imp-fill {
+            height: 100%;
+            border-radius: 2px;
+        }
+
+        .article-summary {
+            font-size: 12px;
+            color: var(--text-sec);
+            line-height: 1.6;
+        }
+
+        /* ── Source Items ── */
+        .src-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(30, 48, 72, .3);
+            gap: 12px;
+        }
+
+        .src-row:last-child {
+            border-bottom: none;
+        }
+
+        .src-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .src-name {
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .src-url-text {
+            font-size: 10px;
+            color: var(--text-dim);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 320px;
+            margin-top: 2px;
+        }
+
+        .src-stats {
+            display: flex;
+            gap: 8px;
+            margin-top: 4px;
+            font-size: 10px;
+            color: var(--text-sec);
+        }
+
+        .type-pill {
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .3px;
+        }
+
+        .tp-rss {
+            background: rgba(251, 146, 60, .12);
+            color: #fb923c;
+        }
+
+        .tp-html {
+            background: rgba(59, 130, 246, .12);
+            color: #3b82f6;
+        }
+
+        .tp-browser {
+            background: rgba(168, 85, 247, .12);
+            color: #a855f7;
+        }
+
+        .tp-pdf {
+            background: rgba(239, 68, 68, .12);
+            color: #ef4444;
+        }
+
+        .tp-youtube {
+            background: rgba(239, 68, 68, .12);
+            color: #f43f5e;
+        }
+
+        .src-actions {
+            display: flex;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        .btn-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-sec);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            transition: all .15s;
+        }
+
+        .btn-icon:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-icon.danger:hover {
+            border-color: var(--red);
+            color: var(--red);
+        }
+
+        .btn-icon.on {
+            border-color: var(--green);
+            color: var(--green);
+            background: rgba(16, 185, 129, .1);
+        }
+
+        /* ── Keyword Tags ── */
+        .kw-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .kw {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--accent-glow);
+            border: 1px solid rgba(59, 130, 246, .2);
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 12px;
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        .kw .cat {
+            font-size: 9px;
+            color: var(--text-dim);
+        }
+
+        .kw .del {
+            cursor: pointer;
+            opacity: .4;
+            font-size: 14px;
+        }
+
+        .kw .del:hover {
+            opacity: 1;
+            color: var(--red);
+        }
+
+        /* ── Add Forms ── */
+        .add-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .add-row input,
+        .add-row select {
+            background: rgba(0, 0, 0, .3);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            padding: 8px 12px;
+            font-size: 12px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color .15s;
+        }
+
+        .add-row input:focus,
+        .add-row select:focus {
+            border-color: var(--accent);
+        }
+
+        .add-row input {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        /* ── Sentiment Bar ── */
+        .sent-bar {
+            display: flex;
+            height: 28px;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+
+        .sent-bar div {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            transition: flex .5s ease;
+        }
+
+        .sent-pos {
+            background: var(--green);
+            color: #fff;
+        }
+
+        .sent-neu {
+            background: #475569;
+            color: #e2e8f0;
+        }
+
+        .sent-neg {
+            background: var(--red);
+            color: #fff;
+        }
+
+        .sent-legend {
+            display: flex;
+            gap: 16px;
+            font-size: 11px;
+            color: var(--text-sec);
+            margin-top: 6px;
+        }
+
+        .sent-legend span::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+
+        .sent-legend .lg-pos::before {
+            background: var(--green);
+        }
+
+        .sent-legend .lg-neg::before {
+            background: var(--red);
+        }
+
+        .sent-legend .lg-neu::before {
+            background: #475569;
+        }
+
+        /* ── Chat ── */
+        .chat-wrap {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 380px;
+            z-index: 100;
+        }
+
+        .chat-toggle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--accent);
+            border: none;
+            color: #fff;
+            font-size: 22px;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(59, 130, 246, .3);
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            transition: transform .2s;
+        }
+
+        .chat-toggle:hover {
+            transform: scale(1.05);
+        }
+
+        .chat-box {
+            position: absolute;
+            bottom: 60px;
+            right: 0;
+            width: 380px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            display: none;
+            flex-direction: column;
+            max-height: 500px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, .5);
+        }
+
+        .chat-box.open {
+            display: flex;
+        }
+
+        .chat-box-head {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-msgs {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 16px;
+            max-height: 320px;
+        }
+
+        .chat-msg {
+            margin-bottom: 12px;
+        }
+
+        .chat-msg .role {
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-bottom: 3px;
+            letter-spacing: .5px;
+        }
+
+        .chat-msg .bubble {
+            font-size: 13px;
+            line-height: 1.6;
+            padding: 10px 14px;
+            border-radius: 10px;
+        }
+
+        .chat-msg.user .bubble {
+            background: var(--accent-glow);
+            border: 1px solid rgba(59, 130, 246, .2);
+        }
+
+        .chat-msg.assistant .bubble {
+            background: rgba(0, 0, 0, .2);
+            border: 1px solid var(--border);
+        }
+
+        .chat-input-row {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .chat-input-row input {
+            flex: 1;
+            background: rgba(0, 0, 0, .3);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: var(--text);
+            font-size: 12px;
+            font-family: inherit;
+            outline: none;
+        }
+
+        .chat-input-row input:focus {
+            border-color: var(--accent);
+        }
+
+        .chat-send {
+            padding: 8px 14px;
+            border-radius: 8px;
+            background: var(--accent);
+            border: none;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* ── Threat / Intel ── */
+        .threat-hero {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 16px;
+            display: grid;
+            grid-template-columns: 120px 1fr 1fr;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .threat-score-ring {
+            text-align: center;
+        }
+
+        .threat-score-ring .big {
+            font-size: 42px;
+            font-weight: 900;
+            font-family: 'JetBrains Mono';
+        }
+
+        .threat-score-ring .lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        .dim-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+
+        .dim {
+            text-align: center;
+        }
+
+        .dim .d-icon {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .dim .d-val {
+            font-size: 18px;
+            font-weight: 800;
+            font-family: 'JetBrains Mono';
+        }
+
+        .dim .d-name {
+            font-size: 9px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        .dim .d-bar {
+            height: 3px;
+            border-radius: 2px;
+            background: var(--border);
+            margin-top: 4px;
+            overflow: hidden;
+        }
+
+        .dim .d-bar-fill {
+            height: 100%;
+            border-radius: 2px;
+        }
+
+        .sig-item {
+            display: flex;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(30, 48, 72, .3);
+        }
+
+        .sig-item:last-child {
+            border-bottom: none;
+        }
+
+        .sig-sev {
+            font-size: 8px;
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-weight: 700;
+            text-transform: uppercase;
+            white-space: nowrap;
+            height: fit-content;
+            margin-top: 2px;
+        }
+
+        .sev-critical {
+            background: rgba(239, 68, 68, .12);
+            color: var(--red);
+        }
+
+        .sev-warning {
+            background: rgba(249, 115, 22, .12);
+            color: var(--orange);
+        }
+
+        .sev-watch {
+            background: rgba(234, 179, 8, .12);
+            color: var(--yellow);
+        }
+
+        .sig-title {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .sig-desc {
+            font-size: 11px;
+            color: var(--text-sec);
+            margin-top: 2px;
+        }
+
+        .e-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .e-table th {
+            text-align: left;
+            font-size: 10px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            padding: 8px 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .e-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid rgba(30, 48, 72, .3);
+        }
+
+        .e-table tr:hover td {
+            background: rgba(59, 130, 246, .03);
+        }
+
+        .e-type {
+            font-size: 8px;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .et-person {
+            background: rgba(168, 85, 247, .12);
+            color: var(--purple);
+        }
+
+        .et-org {
+            background: rgba(59, 130, 246, .12);
+            color: var(--accent);
+        }
+
+        .et-location {
+            background: rgba(16, 185, 129, .12);
+            color: var(--green);
+        }
+
+        .inf-bar {
+            display: inline-block;
+            width: 60px;
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+
+        .inf-fill {
+            height: 100%;
+            border-radius: 2px;
+            background: var(--accent);
+        }
+
+        .graph-box {
+            width: 100%;
+            height: 300px;
+            position: relative;
+            background: radial-gradient(circle at center, rgba(59, 130, 246, .03) 0%, transparent 70%);
+        }
+
+        .graph-box canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .narrative-text {
+            font-size: 13px;
+            line-height: 1.7;
+            color: var(--text-sec);
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        /* ── Toast ── */
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--green);
+            border-radius: 8px;
+            padding: 12px 20px;
+            color: var(--green);
+            font-size: 13px;
+            font-weight: 600;
+            z-index: 9999;
+            animation: slideUp .3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* ── Scraper Status Indicator ── */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .st-running {
+            background: rgba(16, 185, 129, .15);
+            color: var(--green);
+        }
+
+        .st-idle {
+            background: rgba(0, 0, 0, .2);
+            color: var(--text-dim);
+        }
+
+        .velocity-box {
+            padding: 10px 14px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="shell">
+        <!-- ══ Sidebar ══ -->
+        <aside class="sidebar">
+            <div class="brand">
+                <h1>ROBIN OSINT</h1>
+                <p>Command Center</p>
+            </div>
+            <nav class="nav">
+                <button class="nav-btn active" onclick="go('overview')">
+                    <span class="icon">📊</span> Overview
+                    <span class="badge" id="navArticleCount">0</span>
+                </button>
+                <button class="nav-btn" onclick="go('scraper')">
+                    <span class="icon">📡</span> Scraper & Sources
+                </button>
+                <button class="nav-btn" onclick="go('intel')">
+                    <span class="icon">🧠</span> Intelligence
+                </button>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="status-dot" id="serverDot">Server Connected</div>
+                <div style="font-size:10px;color:var(--text-dim);margin-top:6px" id="clientLabel">Loading client...
+                </div>
+            </div>
+        </aside>
+
+        <!-- ══ Main Content ══ -->
+        <div class="content">
+            <!-- ═══════════ OVERVIEW ═══════════ -->
+            <div class="tab-page active" id="page-overview">
+                <div class="page-header">
+                    <div>
+                        <h2>📊 Overview</h2>
+                        <p>Real-time summary of scraped articles and AI analysis results</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn" onclick="loadOverview()">↻ Refresh</button>
+                    </div>
+                </div>
+
+                <div class="metrics" id="overviewMetrics">
+                    <div class="metric"><span class="icon-bg">📰</span>
+                        <div class="label">Total Articles</div>
+                        <div class="value" id="mTotal">–</div>
+                        <div class="sub">Scraped & analyzed</div>
+                    </div>
+                    <div class="metric"><span class="icon-bg">😊</span>
+                        <div class="label">Positive</div>
+                        <div class="value" style="color:var(--green)" id="mPos">–</div>
+                        <div class="sub" id="mPosPct">–</div>
+                    </div>
+                    <div class="metric"><span class="icon-bg">😠</span>
+                        <div class="label">Negative</div>
+                        <div class="value" style="color:var(--red)" id="mNeg">–</div>
+                        <div class="sub" id="mNegPct">–</div>
+                    </div>
+                    <div class="metric"><span class="icon-bg">⚡</span>
+                        <div class="label">Avg Importance</div>
+                        <div class="value" style="color:var(--yellow)" id="mImp">–</div>
+                        <div class="sub">Out of 10</div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-head">
+                        <h3>Sentiment Distribution</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="sent-bar" id="sentBar">
+                            <div class="sent-neu" style="flex:1">Loading...</div>
+                        </div>
+                        <div class="sent-legend"><span class="lg-pos">Positive</span><span
+                                class="lg-neg">Negative</span><span class="lg-neu">Neutral</span></div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-head">
+                        <h3>📰 Article Feed</h3><span class="count" id="articleCount">0</span>
+                    </div>
+                    <div class="panel-body scroll" id="articlesList">
+                        <div class="panel-empty">Loading articles...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════ SCRAPER ═══════════ -->
+            <div class="tab-page" id="page-scraper">
+                <div class="page-header">
+                    <div>
+                        <h2>📡 Scraper & Sources</h2>
+                        <p>Manage data sources, keywords, and control the scraping pipeline</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn" onclick="loadScraperTab()">↻ Refresh</button>
+                        <button class="btn-success btn" id="scrapeBtn" onclick="triggerScrape()">⚡ Run Scraper</button>
+                    </div>
+                </div>
+
+                <div class="metrics" id="scraperMetrics">
+                    <div class="metric"><span class="icon-bg">📡</span>
+                        <div class="label">Active Sources</div>
+                        <div class="value" id="sSources">–</div>
+                        <div class="sub">Configured feeds</div>
+                    </div>
+                    <div class="metric"><span class="icon-bg">📰</span>
+                        <div class="label">Total Articles</div>
+                        <div class="value" id="sArticles">–</div>
+                        <div class="sub">All time</div>
+                    </div>
+                    <div class="metric"><span class="icon-bg">📅</span>
+                        <div class="label">Last 24 Hours</div>
+                        <div class="value" style="color:var(--green)" id="s24h">–</div>
+                        <div class="sub">New articles</div>
+                    </div>
+                    <div class="metric"><span class="icon-bg">🔄</span>
+                        <div class="label">Pending Analysis</div>
+                        <div class="value" style="color:var(--yellow)" id="sPending">–</div>
+                        <div class="sub">In AI queue</div>
+                    </div>
+                    <div class="metric"><span class="icon-bg">🔗</span>
+                        <div class="label">Cross-Source Links</div>
+                        <div class="value" style="color:var(--purple)" id="sDupes">–</div>
+                        <div class="sub">Same story, diff source</div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-head">
+                        <h3>🚀 Scraper Status</h3>
+                        <div id="scraperBadge" class="status-badge st-idle">● IDLE</div>
+                    </div>
+                    <div class="panel-body"
+                        style="display:flex;gap:16px;align-items:center;font-size:12px;color:var(--text-sec)">
+                        <span id="lastRunLabel">Last run: –</span>
+                        <span>•</span>
+                        <span>The scraper fetches articles from all active sources, matches keywords, and saves new
+                            articles.</span>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="panel">
+                        <div class="panel-head">
+                            <h3>📡 Sources</h3><span class="count" id="srcCount">0</span>
+                        </div>
+                        <div class="panel-body scroll">
+                            <div class="add-row">
+                                <input type="text" placeholder="Source name (e.g. BBC World)" id="srcName">
+                                <input type="url" placeholder="URL" id="srcUrl" style="flex:2">
+                                <select id="srcType">
+                                    <option value="rss">📰 RSS</option>
+                                    <option value="html">🌐 HTML</option>
+                                    <option value="browser">🖥️ Browser</option>
+                                    <option value="pdf">📄 PDF</option>
+                                    <option value="youtube">▶️ YouTube</option>
+                                </select>
+                                <button class="btn btn-primary" onclick="addSource()">+ Add</button>
+                            </div>
+                            <div id="sourcesList">
+                                <div class="panel-empty">Loading...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-head">
+                            <h3>🔑 Watch Keywords</h3><span class="count" id="kwCount">0</span>
+                        </div>
+                        <div class="panel-body">
+                            <div class="add-row">
+                                <input type="text" placeholder="Keyword or phrase" id="kwInput">
+                                <select id="kwCat">
+                                    <option value="general">General</option>
+                                    <option value="threat">Threat</option>
+                                    <option value="financial">Financial</option>
+                                    <option value="regulatory">Regulatory</option>
+                                    <option value="geopolitical">Geopolitical</option>
+                                </select>
+                                <button class="btn btn-primary" onclick="addKeyword()">+ Add</button>
+                            </div>
+                            <div class="kw-grid" id="kwList"></div>
+                            <div style="margin-top:16px;font-size:11px;color:var(--text-dim);line-height:1.6">
+                                Keywords are matched against article titles and content during scraping. Articles
+                                matching your keywords are saved for analysis.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════ INTELLIGENCE ═══════════ -->
+            <div class="tab-page" id="page-intel">
+                <div class="page-header">
+                    <div>
+                        <h2>🧠 Intelligence</h2>
+                        <p>AI-generated threat assessment, entity profiling, and strategic narrative</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn" onclick="intelLoaded=false;loadIntelligence()">↻ Refresh</button>
+                    </div>
+                </div>
+                <div id="intelContent">
+                    <div class="panel-empty" style="padding:60px">Loading intelligence data...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ Chat FAB ══ -->
+    <div class="chat-wrap">
+        <div class="chat-box" id="chatBox">
+            <div class="chat-box-head">
+                🤖 ROBIN AI Analyst
+                <button style="background:none;border:none;color:var(--text-sec);cursor:pointer;font-size:16px"
+                    onclick="toggleChat()">✕</button>
+            </div>
+            <div class="chat-msgs" id="chatMsgs">
+                <div class="chat-msg assistant">
+                    <div class="role">robin ai</div>
+                    <div class="bubble">Ask me anything about your intelligence data, sources, or trends.</div>
+                </div>
+            </div>
+            <div class="chat-input-row">
+                <input id="chatInput" placeholder="Ask a question..." onkeydown="if(event.key==='Enter')sendChat()">
+                <button class="chat-send" id="sendBtn" onclick="sendChat()">Send</button>
+            </div>
+        </div>
+        <button class="chat-toggle" onclick="toggleChat()">💬</button>
+    </div>
+
+    <script>
+        const API = 'http://localhost:3001/api/test';
+        let isChatting = false, intelLoaded = false;
+
+        // ── Navigation ──
+        function go(page) {
+            document.querySelectorAll('.nav-btn').forEach((b, i) => b.classList.toggle('active', ['overview', 'scraper', 'intel'][i] === page));
+            document.querySelectorAll('.tab-page').forEach(p => p.classList.toggle('active', p.id === 'page-' + page));
+            if (page === 'intel' && !intelLoaded) { intelLoaded = true; loadIntelligence(); }
+            if (page === 'scraper') loadScraperTab();
+        }
+
+        // ── Overview ──
+        async function loadOverview() {
+            try {
+                const [analytics, articles] = await Promise.all([
+                    fetch(API + '/analytics').then(r => r.json()),
+                    fetch(API + '/articles').then(r => r.json()),
+                ]);
+                if (analytics.client) document.getElementById('clientLabel').textContent = analytics.client.name + ' · ' + (analytics.client.industry || '');
+                const s = analytics.sentiment || {};
+                document.getElementById('mTotal').textContent = s.total || 0;
+                document.getElementById('mPos').textContent = s.positive || 0;
+                document.getElementById('mPosPct').textContent = (s.positive_pct || 0) + '% of total';
+                document.getElementById('mNeg').textContent = s.negative || 0;
+                document.getElementById('mNegPct').textContent = (s.negative_pct || 0) + '% of total';
+                document.getElementById('mImp').textContent = analytics.avg_importance || '–';
+                document.getElementById('navArticleCount').textContent = articles.total || 0;
+                document.getElementById('articleCount').textContent = articles.total || 0;
+                const bar = document.getElementById('sentBar');
+                bar.innerHTML = `${s.positive ? `<div class="sent-pos" style="flex:${s.positive}">${s.positive_pct}%</div>` : ''}${s.neutral ? `<div class="sent-neu" style="flex:${s.neutral}">${s.neutral_pct}%</div>` : ''}${s.negative ? `<div class="sent-neg" style="flex:${s.negative}">${s.negative_pct}%</div>` : ''}`;
+                const list = document.getElementById('articlesList');
+                if (!articles.data?.length) { list.innerHTML = '<div class="panel-empty">No articles yet. Go to Scraper tab to add sources and run a scrape.</div>'; return; }
+                list.innerHTML = articles.data.map(a => {
+                    const an = a.analysis, sent = an?.sentiment || 'unknown', sc = an?.importance_score || 0;
+                    const scC = sc >= 7 ? 'var(--red)' : sc >= 5 ? 'var(--yellow)' : 'var(--green)';
+                    const dt = a.published_at ? new Date(a.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+                    const sentCls = sent === 'positive' ? 'pill-pos' : sent === 'negative' ? 'pill-neg' : 'pill-neu';
+                    return `<div class="article"><div class="article-title"><a href="${a.url || '#'}" target="_blank">${a.title || 'Untitled'}</a></div><div class="article-meta"><span>📅 ${dt}</span><span class="pill ${sentCls}">${sent}</span><span class="importance-mini">⚡ ${sc}/10 <span class="imp-bar"><span class="imp-fill" style="width:${sc * 10}%;background:${scC}"></span></span></span>${(a.matched_keywords || []).slice(0, 3).map(k => `<span class="pill pill-kw">#${k}</span>`).join('')}</div>${an?.summary ? `<div class="article-summary">${an.summary}</div>` : ''}</div>`;
+                }).join('');
+                document.getElementById('serverDot').textContent = 'Server Connected';
+            } catch (e) { console.error(e); document.getElementById('serverDot').textContent = 'Connection Error'; }
+        }
+
+        // ── Scraper Tab ──
+        async function loadScraperTab() { await Promise.all([loadScraperStatus(), loadSources(), loadKeywords()]); }
+
+        async function loadScraperStatus() {
+            try {
+                const r = await fetch(API + '/scraper-status').then(r => r.json());
+                document.getElementById('sSources').textContent = r.total_sources || 0;
+                document.getElementById('sArticles').textContent = r.total_articles || 0;
+                document.getElementById('s24h').textContent = r.articles_last_24h || 0;
+                document.getElementById('sPending').textContent = r.pending_analysis || 0;
+                document.getElementById('sDupes').textContent = r.cross_source_duplicates || 0;
+                const b = document.getElementById('scraperBadge');
+                b.className = 'status-badge ' + (r.scraper_running ? 'st-running' : 'st-idle');
+                b.textContent = r.scraper_running ? '● RUNNING' : '● IDLE';
+                if (r.last_run) { const m = Math.round((Date.now() - new Date(r.last_run).getTime()) / 60000); document.getElementById('lastRunLabel').textContent = `Last run: ${m < 60 ? m + 'm ago' : Math.round(m / 60) + 'h ago'}`; }
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadSources() {
+            try {
+                const r = await fetch(API + '/sources').then(r => r.json());
+                document.getElementById('srcCount').textContent = (r.data || []).length;
+                const el = document.getElementById('sourcesList');
+                if (!r.data?.length) { el.innerHTML = '<div class="panel-empty">No sources yet. Add your first source above!</div>'; return; }
+                const icons = { rss: '📰', html: '🌐', browser: '🖥️', pdf: '📄', youtube: '▶️' };
+                el.innerHTML = r.data.map(s => {
+                    const ls = s.last_scraped_at ? new Date(s.last_scraped_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Never';
+                    return `<div class="src-row"><div class="src-info"><div class="src-name">${icons[s.source_type] || '📡'} <span class="type-pill tp-${s.source_type}">${s.source_type}</span> ${s.name} ${!s.is_active ? '<span style="color:var(--text-dim);font-size:10px">(paused)</span>' : ''}</div><div class="src-url-text">${s.url}</div><div class="src-stats"><span>Last: ${ls}</span><span>✅${s.scrape_success_count || 0} ❌${s.scrape_fail_count || 0}</span>${s.last_scrape_error ? '<span style="color:var(--red)">⚠ Error</span>' : ''}</div></div><div class="src-actions"><button class="btn-icon" onclick="triggerScrape('${s.id}')" title="Scrape now">⚡</button><button class="btn-icon ${s.is_active ? 'on' : ''}" onclick="toggleSource('${s.id}')" title="${s.is_active ? 'Pause' : 'Resume'}">${s.is_active ? '✓' : '✗'}</button><button class="btn-icon danger" onclick="deleteSource('${s.id}')" title="Delete">🗑</button></div></div>`;
+                }).join('');
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadKeywords() {
+            try {
+                const r = await fetch(API + '/keywords').then(r => r.json());
+                document.getElementById('kwCount').textContent = (r.data || []).length;
+                const el = document.getElementById('kwList');
+                if (!r.data?.length) { el.innerHTML = '<div style="color:var(--text-dim);font-size:12px">No keywords configured yet.</div>'; return; }
+                el.innerHTML = r.data.map(k => `<div class="kw"><span>${k.keyword}</span><span class="cat">${k.category || ''}</span><span class="del" onclick="deleteKeyword('${k.id}')">&times;</span></div>`).join('');
+            } catch (e) { console.error(e); }
+        }
+
+        async function addSource() {
+            const n = document.getElementById('srcName').value.trim(), u = document.getElementById('srcUrl').value.trim(), t = document.getElementById('srcType').value;
+            if (!n || !u) return toast('Please fill in name and URL');
+            try { const r = await fetch(API + '/sources', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: n, url: u, source_type: t }) }).then(r => r.json()); if (r.error) throw new Error(r.error); document.getElementById('srcName').value = ''; document.getElementById('srcUrl').value = ''; toast('✅ Source added: ' + n); loadSources(); loadScraperStatus(); } catch (e) { toast('❌ ' + e.message); }
+        }
+        async function deleteSource(id) { if (!confirm('Delete this source?')) return; await fetch(API + '/sources/' + id, { method: 'DELETE' }); toast('Source deleted'); loadSources(); loadScraperStatus(); }
+        async function toggleSource(id) { const r = await fetch(API + '/sources/' + id + '/toggle', { method: 'PATCH' }).then(r => r.json()); toast(r.message); loadSources(); loadScraperStatus(); }
+        async function addKeyword() {
+            const kw = document.getElementById('kwInput').value.trim(), cat = document.getElementById('kwCat').value;
+            if (!kw) return; try { await fetch(API + '/keywords', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ keyword: kw, category: cat }) }); document.getElementById('kwInput').value = ''; toast('✅ Keyword added: ' + kw); loadKeywords(); } catch (e) { toast('❌ ' + e.message); }
+        }
+        async function deleteKeyword(id) { await fetch(API + '/keywords/' + id, { method: 'DELETE' }); toast('Keyword deleted'); loadKeywords(); }
+        async function triggerScrape(srcId) {
+            const btn = document.getElementById('scrapeBtn'); btn.disabled = true; btn.textContent = '⏳ Running...';
+            await fetch(API + '/scrape', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sourceId: srcId }) });
+            toast(srcId ? 'Scraping source...' : 'Scraping all sources...');
+            setTimeout(() => { loadScraperStatus(); btn.disabled = false; btn.textContent = '⚡ Run Scraper'; }, 5000);
+            setTimeout(() => { loadScraperStatus(); loadSources(); }, 15000);
+            setTimeout(() => { loadScraperStatus(); loadSources(); loadOverview(); }, 30000);
+        }
+
+        // ── Chat ──
+        function toggleChat() { document.getElementById('chatBox').classList.toggle('open'); }
+        async function sendChat() {
+            if (isChatting) return; const inp = document.getElementById('chatInput'), q = inp.value.trim(); if (!q || q.length < 3) return;
+            isChatting = true; inp.value = ''; document.getElementById('sendBtn').disabled = true;
+            addMsg('user', q);
+            const tid = 't' + Date.now(); const msgs = document.getElementById('chatMsgs');
+            const div = document.createElement('div'); div.className = 'chat-msg assistant'; div.id = tid; div.innerHTML = '<div class="role">robin ai</div><div class="bubble">Thinking...</div>'; msgs.appendChild(div); msgs.scrollTop = msgs.scrollHeight;
+            try {
+                const ctrl = new AbortController(); setTimeout(() => ctrl.abort(), 60000);
+                const res = await fetch(API + '/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question: q }), signal: ctrl.signal });
+                const reader = res.body.getReader(), dec = new TextDecoder(); let full = '', buf = '';
+                const bubble = div.querySelector('.bubble'); bubble.textContent = '';
+                while (true) {
+                    const { done, value } = await reader.read(); if (done) break; buf += dec.decode(value, { stream: true });
+                    const lines = buf.split('\n'); buf = lines.pop() || '';
+                    for (const ln of lines) {
+                        if (!ln.startsWith('data: ')) continue; const d = ln.slice(6).trim(); if (d === '[DONE]') continue;
+                        try { const j = JSON.parse(d); if (j.type === 'token') { full += j.token; bubble.innerHTML = fmt(full); msgs.scrollTop = msgs.scrollHeight; } } catch (e) { }
+                    }
+                }
+                if (!full) bubble.innerHTML = '<span style="color:var(--text-dim)">No response. Try again.</span>';
+            } catch (e) { div.querySelector('.bubble').innerHTML = `<span style="color:var(--red)">${e.name === 'AbortError' ? '⏱ Timed out' : '⚠ ' + e.message}</span>`; }
+            isChatting = false; document.getElementById('sendBtn').disabled = false; inp.focus();
+        }
+        function addMsg(role, text) { const m = document.getElementById('chatMsgs'), d = document.createElement('div'); d.className = 'chat-msg ' + role; d.innerHTML = `<div class="role">${role === 'user' ? 'You' : 'Robin AI'}</div><div class="bubble">${fmt(text)}</div>`; m.appendChild(d); m.scrollTop = m.scrollHeight; }
+        function fmt(t) { return t.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>').replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>'); }
+
+        // ── Intelligence ──
+        function sc(s) { return s >= 70 ? 'var(--red)' : s >= 50 ? 'var(--orange)' : s >= 30 ? 'var(--yellow)' : 'var(--green)'; }
+        async function loadIntelligence() {
+            const el = document.getElementById('intelContent');
+            try {
+                const d = await fetch(API + '/intelligence').then(r => { if (!r.ok) throw new Error('API ' + r.status); return r.json(); });
+                const t = d.threat_assessment, sb = d.narrative?.sentiment_breakdown?.percentages || {};
+                let html = '';
+                if (t) {
+                    const s = t.overall_score || 0, dm = t.dimensions || {}, v = t.threat_velocity || {}, th = t.active_threats || [];
+                    const c = sc(s), lvl = s >= 70 ? 'HIGH' : s >= 50 ? 'ELEVATED' : s >= 30 ? 'MEDIUM' : 'LOW';
+                    const vi = v.direction === 'accelerating' ? '📈' : v.direction === 'decelerating' ? '📉' : '➡️';
+                    const dims = [{ k: 'reputational', l: 'Reputation', i: '🛡️' }, { k: 'financial', l: 'Financial', i: '💰' }, { k: 'regulatory', l: 'Regulatory', i: '⚖️' }, { k: 'operational', l: 'Operations', i: '⚙️' }, { k: 'geopolitical', l: 'Geopolitical', i: '🌍' }];
+                    html += `<div class="threat-hero"><div class="threat-score-ring"><div class="big" style="color:${c}">${s}</div><div class="lbl" style="color:${c}">${lvl} RISK</div></div><div class="dim-grid">${dims.map(x => { const v2 = dm[x.k] || 0; return `<div class="dim"><div class="d-icon">${x.i}</div><div class="d-val" style="color:${sc(v2)}">${v2}</div><div class="d-name">${x.l}</div><div class="d-bar"><div class="d-bar-fill" style="width:${v2}%;background:${sc(v2)}"></div></div></div>`; }).join('')}</div><div><div class="velocity-box" style="background:${v.direction === 'accelerating' ? 'rgba(239,68,68,.1)' : 'rgba(16,185,129,.1)'}"><span style="font-size:18px">${vi}</span><div><div>Velocity: <strong>${(v.direction || 'steady').toUpperCase()}</strong></div><div style="font-size:10px;color:var(--text-sec)">${v.current || 0} neg (48h) vs ${v.previous || 0} prior</div></div></div>${th.slice(0, 3).map(x => `<div style="padding:8px 12px;margin-top:6px;border-radius:6px;border-left:3px solid ${x.severity === 'critical' ? 'var(--red)' : x.severity === 'high' ? 'var(--orange)' : 'var(--yellow)'}; background:rgba(0,0,0,.2)"><div style="font-size:12px;font-weight:600">${x.title}</div><div style="font-size:10px;color:var(--text-sec)">${x.severity?.toUpperCase()} · ⚡${x.importance} · ${x.category}</div></div>`).join('')}</div></div>`;
+                }
+                const ents = d.entity_profiles || [], sigs = d.signals || [];
+                const cleanEnts = ents.filter(e => !/^\d+$/.test(e.name) && !e.name.includes('%'));
+                html += `<div class="grid-2"><div class="panel"><div class="panel-head"><h3>🎯 Entities</h3><span class="count">${cleanEnts.length}</span></div><div class="panel-body scroll">${cleanEnts.length ? `<table class="e-table"><thead><tr><th>Entity</th><th>Influence</th><th>Mentions</th></tr></thead><tbody>${cleanEnts.slice(0, 12).map(e => `<tr><td><span class="e-type et-${e.type}">${e.type}</span> ${e.name}</td><td><span class="inf-bar"><span class="inf-fill" style="width:${e.influence || 0}%"></span></span>${e.influence || 0}</td><td>${e.mentions || 0}</td></tr>`).join('')}</tbody></table>` : '<div class="panel-empty">No entities</div>'}</div></div>`;
+                html += `<div class="panel"><div class="panel-head"><h3>⚡ Signals</h3><span class="count">${sigs.length}</span></div><div class="panel-body scroll">${sigs.length ? sigs.slice(0, 10).map(s => `<div class="sig-item"><span class="sig-sev sev-${s.severity}">${s.severity}</span><div><div class="sig-title">${s.title}</div><div class="sig-desc">${s.description || ''}</div></div></div>`).join('') : '<div class="panel-empty">No signals</div>'}</div></div></div>`;
+                html += `<div class="grid-2"><div class="panel"><div class="panel-head"><h3>🕸️ Entity Network</h3></div><div class="panel-body"><div class="graph-box"><canvas id="entityCanvas"></canvas></div></div></div>`;
+                html += `<div class="panel"><div class="panel-head"><h3>📋 Strategic Narrative</h3></div><div class="panel-body"><div class="narrative-text">${(d.narrative?.weekly_narrative || 'No narrative generated yet.').replace(/\n/g, '<br>')}</div></div></div></div>`;
+                el.innerHTML = html;
+                drawGraph(d.entity_graph);
+            } catch (e) { el.innerHTML = `<div class="panel-empty" style="padding:40px"><div style="font-size:28px;margin-bottom:8px">⚠️</div>Failed: ${e.message}<br><button class="btn" style="margin-top:12px" onclick="intelLoaded=false;loadIntelligence()">Retry</button></div>`; }
+        }
+
+        function drawGraph(graph) {
+            if (!graph?.nodes?.length) return;
+            setTimeout(() => {
+                const canvas = document.getElementById('entityCanvas'); if (!canvas) return;
+                const ctx = canvas.getContext('2d'), rect = canvas.parentElement.getBoundingClientRect();
+                canvas.width = rect.width * 2; canvas.height = rect.height * 2; canvas.style.width = rect.width + 'px'; canvas.style.height = rect.height + 'px'; ctx.scale(2, 2);
+                const W = rect.width, H = rect.height;
+                const nodes = graph.nodes.filter(n => !/^\d+$/.test(n.id) && !n.id.includes('%')).slice(0, 14);
+                const edges = graph.edges.filter(e => nodes.some(n => n.id === e.source) && nodes.some(n => n.id === e.target) && e.weight >= 3);
+                const pos = {}; const cx = W / 2, cy = H / 2;
+                nodes.forEach((n, i) => { const a = (i / nodes.length) * Math.PI * 2, r = 100 + Math.random() * 30; pos[n.id] = { x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r, r: Math.max(6, Math.min(20, (n.influence || 0) / 6)) }; });
+                for (let it = 0; it < 40; it++) { for (let i = 0; i < nodes.length; i++)for (let j = i + 1; j < nodes.length; j++) { const a = pos[nodes[i].id], b = pos[nodes[j].id]; const dx = b.x - a.x, dy = b.y - a.y, d = Math.max(Math.sqrt(dx * dx + dy * dy), 1); const f = 600 / (d * d), fx = (dx / d) * f, fy = (dy / d) * f; a.x -= fx; a.y -= fy; b.x += fx; b.y += fy; } for (const e of edges) { const a = pos[e.source], b = pos[e.target]; if (!a || !b) continue; const dx = b.x - a.x, dy = b.y - a.y, d = Math.sqrt(dx * dx + dy * dy); const f = (d - 80) * .008, fx = (dx / Math.max(d, 1)) * f, fy = (dy / Math.max(d, 1)) * f; a.x += fx; a.y += fy; b.x -= fx; b.y -= fy; } nodes.forEach(n => { const p = pos[n.id]; p.x += (cx - p.x) * .01; p.y += (cy - p.y) * .01; p.x = Math.max(40, Math.min(W - 40, p.x)); p.y = Math.max(25, Math.min(H - 25, p.y)); }); }
+                const mw = Math.max(...edges.map(e => e.weight), 1);
+                for (const e of edges) { const a = pos[e.source], b = pos[e.target]; if (!a || !b) continue; ctx.strokeStyle = `rgba(59,130,246,${.1 + (e.weight / mw) * .4})`; ctx.lineWidth = .5 + (e.weight / mw) * 2; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); }
+                const tc = { person: '#a855f7', org: '#3b82f6', location: '#10b981', figure: '#eab308' };
+                for (const n of nodes) { const p = pos[n.id], c = tc[n.type] || '#3b82f6'; ctx.fillStyle = c + '20'; ctx.beginPath(); ctx.arc(p.x, p.y, p.r + 3, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = c; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#e8edf5'; ctx.font = '10px Inter'; ctx.textAlign = 'center'; ctx.fillText(n.id, p.x, p.y + p.r + 12); }
+            }, 100);
+        }
+
+        // ── Utilities ──
+        function toast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
+
+        // ── Init ──
+        loadOverview();
+    </script>
+</body>
+
+</html>

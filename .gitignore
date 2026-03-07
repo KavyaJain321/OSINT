@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+
+# Environment variables (NEVER push these!)
+.env
+.env.local
+.env.*.local
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# IDE
+.vscode/
+.idea/
+
+# Temporary/generated
+*.tmp
+commonwealth-setup-results.json
+odisha-setup-results.json
+read_excel.cjs
+excel_output*.txt
+
+# Test scripts (may contain API keys)
+robin-backend/test-*.js
+robin-backend/test-*.txt
+robin-backend/check-*.js
+robin-backend/verify-*.js
+robin-backend/debug-*.js
+robin-backend/trigger-*.js
+robin-backend/add-*.js
+robin-backend/apply-*.js
+robin-backend/fix-*.js
+
+# Setup results
+*-setup-results.json
+
+# Gemini agent artifacts
+.gemini/
+.agent/
+.agents/

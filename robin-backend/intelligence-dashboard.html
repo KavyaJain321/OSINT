@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROBIN — Intelligence Command Center</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #060a11;
+            --bg-secondary: #0c1220;
+            --bg-card: #111a2e;
+            --bg-card-hover: #162035;
+            --bg-glass: rgba(17, 26, 46, 0.7);
+            --border: #1a2a45;
+            --border-glow: rgba(59, 130, 246, 0.2);
+            --text-primary: #e8edf5;
+            --text-secondary: #8b9bb5;
+            --text-muted: #5a6a85;
+            --accent: #3b82f6;
+            --accent-dim: rgba(59, 130, 246, 0.12);
+            --green: #10b981;
+            --green-bg: rgba(16, 185, 129, 0.1);
+            --red: #ef4444;
+            --red-bg: rgba(239, 68, 68, 0.1);
+            --orange: #f97316;
+            --orange-bg: rgba(249, 115, 22, 0.1);
+            --yellow: #eab308;
+            --yellow-bg: rgba(234, 179, 8, 0.1);
+            --purple: #a855f7;
+            --purple-bg: rgba(168, 85, 247, 0.1);
+            --cyan: #06b6d4;
+            --cyan-bg: rgba(6, 182, 212, 0.1);
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── HEADER ── */
+        .header {
+            background: linear-gradient(180deg, rgba(12, 18, 32, 0.95) 0%, rgba(6, 10, 17, 0.95) 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 500;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .live-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--green);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--green);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+            }
+
+            50% {
+                opacity: 0.7;
+                box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+            }
+        }
+
+        .refresh-btn {
+            background: var(--accent-dim);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: var(--accent);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .refresh-btn:hover {
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        /* ── MAIN LAYOUT ── */
+        .main {
+            padding: 24px 32px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* ── THREAT BANNER ── */
+        .threat-banner {
+            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(17, 26, 46, 0.5) 100%);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px 32px;
+            margin-bottom: 24px;
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 32px;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .threat-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), var(--purple), transparent);
+        }
+
+        .threat-score-section {
+            text-align: center;
+        }
+
+        .threat-score-ring {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 12px;
+            position: relative;
+        }
+
+        .threat-score-ring svg {
+            transform: rotate(-90deg);
+        }
+
+        .threat-score-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 36px;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .threat-score-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .threat-dims {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+        }
+
+        .dim-item {
+            text-align: center;
+            padding: 12px 8px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .dim-value {
+            font-size: 24px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 4px;
+        }
+
+        .dim-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-weight: 600;
+        }
+
+        .dim-bar {
+            height: 3px;
+            background: var(--border);
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .dim-bar-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 1s ease;
+        }
+
+        .threat-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .threat-velocity {
+            padding: 12px 16px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .velocity-icon {
+            font-size: 20px;
+        }
+
+        /* ── GRID ── */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .grid-wide {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* ── CARD ── */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            transition: border-color 0.3s;
+        }
+
+        .card:hover {
+            border-color: var(--border-glow);
+        }
+
+        .card-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-title {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-badge {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .card-body {
+            padding: 16px 20px;
+        }
+
+        /* ── ENTITY TABLE ── */
+        .entity-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .entity-table th {
+            text-align: left;
+            padding: 8px 12px;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .entity-table td {
+            padding: 10px 12px;
+            font-size: 13px;
+            border-bottom: 1px solid rgba(26, 42, 69, 0.5);
+        }
+
+        .entity-table tr:hover td {
+            background: rgba(59, 130, 246, 0.03);
+        }
+
+        .entity-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .entity-type-badge {
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .type-person {
+            background: var(--purple-bg);
+            color: var(--purple);
+        }
+
+        .type-org {
+            background: var(--accent-dim);
+            color: var(--accent);
+        }
+
+        .type-location {
+            background: var(--green-bg);
+            color: var(--green);
+        }
+
+        .type-figure {
+            background: var(--yellow-bg);
+            color: var(--yellow);
+        }
+
+        .influence-bar {
+            width: 80px;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+
+        .influence-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 1s ease;
+        }
+
+        .trend-badge {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .trend-stable {
+            background: var(--accent-dim);
+            color: var(--accent);
+        }
+
+        .trend-concerning {
+            background: var(--orange-bg);
+            color: var(--orange);
+        }
+
+        .trend-worsening {
+            background: var(--red-bg);
+            color: var(--red);
+        }
+
+        .trend-improving {
+            background: var(--green-bg);
+            color: var(--green);
+        }
+
+        /* ── SIGNALS ── */
+        .signal-item {
+            padding: 14px 16px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            border: 1px solid var(--border);
+            background: rgba(0, 0, 0, 0.15);
+            transition: background 0.2s;
+        }
+
+        .signal-item:hover {
+            background: rgba(0, 0, 0, 0.25);
+        }
+
+        .signal-severity {
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            margin-top: 2px;
+        }
+
+        .severity-critical {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .severity-warning {
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid rgba(249, 115, 22, 0.3);
+        }
+
+        .severity-watch {
+            background: var(--yellow-bg);
+            color: var(--yellow);
+            border: 1px solid rgba(234, 179, 8, 0.3);
+        }
+
+        .severity-info {
+            background: var(--accent-dim);
+            color: var(--accent);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .signal-content {
+            flex: 1;
+        }
+
+        .signal-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .signal-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* ── ENTITY GRAPH (canvas) ── */
+        .graph-container {
+            width: 100%;
+            height: 420px;
+            position: relative;
+            background: radial-gradient(circle at center, rgba(59, 130, 246, 0.03) 0%, transparent 70%);
+        }
+
+        .graph-container canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* ── SOURCE RELIABILITY ── */
+        .source-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(26, 42, 69, 0.5);
+        }
+
+        .source-item:last-child {
+            border-bottom: none;
+        }
+
+        .source-reliability-ring {
+            width: 48px;
+            height: 48px;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .source-reliability-ring svg {
+            transform: rotate(-90deg);
+        }
+
+        .source-reliability-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 14px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .source-info {
+            flex: 1;
+        }
+
+        .source-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .source-meta {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* ── NARRATIVE ── */
+        .narrative-text {
+            font-size: 14px;
+            line-height: 1.7;
+            color: var(--text-secondary);
+            max-height: 350px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .narrative-text::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .narrative-text::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .narrative-text::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 2px;
+        }
+
+        /* ── ACTIVE THREATS ── */
+        .threat-item {
+            padding: 14px 16px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            border-left: 3px solid;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .threat-critical {
+            border-left-color: var(--red);
+        }
+
+        .threat-high {
+            border-left-color: var(--orange);
+        }
+
+        .threat-medium {
+            border-left-color: var(--yellow);
+        }
+
+        .threat-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .threat-detail {
+            font-size: 11px;
+            color: var(--text-muted);
+            display: flex;
+            gap: 12px;
+        }
+
+        /* ── VOLUME CHART ── */
+        .volume-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 4px;
+            height: 100px;
+            padding: 12px 0;
+        }
+
+        .volume-bar-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .volume-bar {
+            width: 100%;
+            min-height: 4px;
+            border-radius: 3px 3px 0 0;
+            transition: height 0.5s ease;
+            position: relative;
+        }
+
+        .volume-bar:hover {
+            opacity: 0.85;
+        }
+
+        .volume-label {
+            font-size: 9px;
+            color: var(--text-muted);
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        /* ── RISK TAGS ── */
+        .risk-tag {
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: var(--red-bg);
+            color: var(--red);
+            font-weight: 600;
+            display: inline-block;
+            margin: 1px 2px;
+        }
+
+        /* ── LOADING ── */
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 20px;
+            gap: 16px;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* ── COOCCURRENCE PAIRS ── */
+        .cooccurrence-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(26, 42, 69, 0.3);
+            font-size: 13px;
+        }
+
+        .cooccurrence-item:last-child {
+            border-bottom: none;
+        }
+
+        .cooccurrence-weight {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent);
+            min-width: 24px;
+            text-align: center;
+        }
+
+        .cooccurrence-arrow {
+            color: var(--text-muted);
+            font-size: 11px;
+        }
+
+        /* ── SCROLLBAR ── */
+        .card-body-scroll {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .card-body-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .card-body-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .card-body-scroll::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 2px;
+        }
+
+        @media (max-width: 1200px) {
+
+            .grid-2,
+            .grid-3,
+            .grid-wide {
+                grid-template-columns: 1fr;
+            }
+
+            .threat-banner {
+                grid-template-columns: 1fr;
+            }
+
+            .threat-dims {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div>
+                <div class="logo">ROBIN</div>
+                <div class="logo-sub">Intelligence Command Center</div>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="live-badge">
+                <div class="live-dot"></div>
+                LIVE
+            </div>
+            <button class="refresh-btn" onclick="loadData()">⟳ Refresh Intel</button>
+        </div>
+    </div>
+
+    <div class="main" id="content">
+        <div class="loading">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Connecting to intelligence feed...</div>
+        </div>
+    </div>
+
+    <script>
+        const API = window.location.origin;
+
+        function getScoreColor(score) {
+            if (score >= 70) return 'var(--red)';
+            if (score >= 50) return 'var(--orange)';
+            if (score >= 30) return 'var(--yellow)';
+            return 'var(--green)';
+        }
+
+        function getTrendClass(trend) {
+            if (trend === 'worsening') return 'trend-worsening';
+            if (trend === 'concerning') return 'trend-concerning';
+            if (trend === 'improving') return 'trend-improving';
+            return 'trend-stable';
+        }
+
+        function createRingSVG(size, value, max, color, strokeWidth = 6) {
+            const radius = (size / 2) - strokeWidth;
+            const circumference = 2 * Math.PI * radius;
+            const pct = Math.min(value / max, 1);
+            const dashoffset = circumference * (1 - pct);
+            return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+                <circle cx="${size / 2}" cy="${size / 2}" r="${radius}" fill="none" stroke="var(--border)" stroke-width="${strokeWidth}"/>
+                <circle cx="${size / 2}" cy="${size / 2}" r="${radius}" fill="none" stroke="${color}" stroke-width="${strokeWidth}"
+                    stroke-dasharray="${circumference}" stroke-dashoffset="${dashoffset}" stroke-linecap="round"
+                    style="transition: stroke-dashoffset 1.5s ease"/>
+            </svg>`;
+        }
+
+        function renderThreatBanner(threat, narrative) {
+            if (!threat) return '<div class="card" style="margin-bottom:20px"><div class="card-body"><p style="color:var(--text-muted);text-align:center;padding:20px">No threat assessment available. Run the intelligence engine first.</p></div></div>';
+
+            const score = threat.overall_score || 0;
+            const dims = threat.dimensions || {};
+            const velocity = threat.threat_velocity || {};
+            const threats = threat.active_threats || [];
+            const color = getScoreColor(score);
+            const riskLevel = score >= 70 ? 'HIGH' : score >= 50 ? 'ELEVATED' : score >= 30 ? 'MEDIUM' : 'LOW';
+
+            const velDir = velocity.direction || 'steady';
+            const velIcon = velDir === 'accelerating' ? '📈' : velDir === 'decelerating' ? '📉' : '➡️';
+            const velColor = velDir === 'accelerating' ? 'var(--red-bg)' : velDir === 'decelerating' ? 'var(--green-bg)' : 'var(--accent-dim)';
+            const velBorder = velDir === 'accelerating' ? 'rgba(239,68,68,0.3)' : velDir === 'decelerating' ? 'rgba(16,185,129,0.3)' : 'rgba(59,130,246,0.3)';
+
+            const dimEntries = [
+                { key: 'reputational', label: 'Reputation', icon: '🛡️' },
+                { key: 'financial', label: 'Financial', icon: '💰' },
+                { key: 'regulatory', label: 'Regulatory', icon: '⚖️' },
+                { key: 'operational', label: 'Operations', icon: '⚙️' },
+                { key: 'geopolitical', label: 'Geopolitical', icon: '🌍' },
+            ];
+
+            return `<div class="threat-banner">
+                <div class="threat-score-section">
+                    <div class="threat-score-ring">
+                        ${createRingSVG(120, score, 100, color, 8)}
+                        <div class="threat-score-value" style="color:${color}">${score}</div>
+                    </div>
+                    <div class="threat-score-label" style="color:${color}">${riskLevel} RISK</div>
+                </div>
+                <div class="threat-dims">
+                    ${dimEntries.map(d => {
+                const val = dims[d.key] || 0;
+                return `<div class="dim-item">
+                            <div style="font-size:18px;margin-bottom:4px">${d.icon}</div>
+                            <div class="dim-value" style="color:${getScoreColor(val)}">${val}</div>
+                            <div class="dim-label">${d.label}</div>
+                            <div class="dim-bar"><div class="dim-bar-fill" style="width:${val}%;background:${getScoreColor(val)}"></div></div>
+                        </div>`;
+            }).join('')}
+                </div>
+                <div class="threat-meta">
+                    <div class="threat-velocity" style="background:${velColor};border:1px solid ${velBorder}">
+                        <span class="velocity-icon">${velIcon}</span>
+                        <div>
+                            <div style="font-size:13px">Threat Velocity: <strong>${velDir.toUpperCase()}</strong></div>
+                            <div style="font-size:11px;color:var(--text-muted);margin-top:2px">${velocity.current || 0} negative (48h) vs ${velocity.previous || 0} prior</div>
+                        </div>
+                    </div>
+                    ${threats.length > 0 ? `<div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-top:4px">Active Threats (${threats.length})</div>` : ''}
+                    ${threats.slice(0, 3).map(t => `<div class="threat-item threat-${t.severity}">
+                        <div class="threat-title">${t.title}</div>
+                        <div class="threat-detail">
+                            <span>${t.severity?.toUpperCase()}</span>
+                            <span>⚡ Importance: ${t.importance}</span>
+                            <span>📂 ${t.category}</span>
+                        </div>
+                    </div>`).join('')}
+                </div>
+            </div>`;
+        }
+
+        function renderEntityTable(entities) {
+            if (!entities || entities.length === 0) return '<p style="color:var(--text-muted);padding:20px;text-align:center">No entity profiles yet</p>';
+            return `<table class="entity-table">
+                <thead><tr>
+                    <th>Entity</th><th>Influence</th><th>Mentions</th><th>Trend</th><th>Risk</th>
+                </tr></thead>
+                <tbody>
+                ${entities.filter(e => !/^\d+$/.test(e.name) && !e.name.includes('%') && !e.name.includes('$')).slice(0, 15).map(e => {
+                const typeClass = 'type-' + (e.type || 'location');
+                const trendClass = getTrendClass(e.sentiment?.trend || 'stable');
+                const influence = e.influence || 0;
+                const iColor = getScoreColor(100 - influence);
+                return `<tr>
+                        <td><div class="entity-name">
+                            <span class="entity-type-badge ${typeClass}">${e.type}</span>
+                            ${e.name}
+                        </div></td>
+                        <td>
+                            <div class="influence-bar"><div class="influence-bar-fill" style="width:${influence}%;background:var(--accent)"></div></div>
+                            <span style="font-family:'JetBrains Mono';font-size:12px;font-weight:600">${influence}</span>
+                        </td>
+                        <td style="font-family:'JetBrains Mono';font-size:13px;font-weight:500">${e.mentions || 0}</td>
+                        <td><span class="trend-badge ${trendClass}">${e.sentiment?.trend || 'stable'}</span></td>
+                        <td>${(e.risk_tags || []).slice(0, 2).map(t => `<span class="risk-tag">${t.replace(/_/g, ' ')}</span>`).join('')}</td>
+                    </tr>`;
+            }).join('')}
+                </tbody>
+            </table>`;
+        }
+
+        function renderSignals(signals) {
+            if (!signals || signals.length === 0) return '<p style="color:var(--text-muted);padding:20px;text-align:center">No active signals</p>';
+            return signals.slice(0, 12).map(s => `<div class="signal-item">
+                <span class="signal-severity severity-${s.severity}">${s.severity}</span>
+                <div class="signal-content">
+                    <div class="signal-title">${s.title}</div>
+                    <div class="signal-desc">${s.description || ''}</div>
+                </div>
+            </div>`).join('');
+        }
+
+        function renderSourceReliability(sources) {
+            if (!sources || sources.length === 0) return '<p style="color:var(--text-muted);padding:20px;text-align:center">No source data</p>';
+            return sources.map(s => {
+                const rel = s.reliability || 50;
+                const color = rel >= 80 ? 'var(--green)' : rel >= 60 ? 'var(--yellow)' : 'var(--red)';
+                return `<div class="source-item">
+                    <div class="source-reliability-ring">
+                        ${createRingSVG(48, rel, 100, color, 4)}
+                        <div class="source-reliability-value" style="color:${color}">${rel}</div>
+                    </div>
+                    <div class="source-info">
+                        <div class="source-name">${s.name}</div>
+                        <div class="source-meta">${s.articles} articles · ${s.bias} bias</div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function renderEntityGraph(graph) {
+            if (!graph || !graph.nodes || graph.nodes.length === 0) return '<p style="color:var(--text-muted);padding:40px;text-align:center">No graph data</p>';
+
+            setTimeout(() => {
+                const canvas = document.getElementById('entityCanvas');
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                const rect = canvas.parentElement.getBoundingClientRect();
+                canvas.width = rect.width * 2;
+                canvas.height = rect.height * 2;
+                canvas.style.width = rect.width + 'px';
+                canvas.style.height = rect.height + 'px';
+                ctx.scale(2, 2);
+
+                const W = rect.width, H = rect.height;
+                const nodes = graph.nodes.filter(n => !/^\d+$/.test(n.id) && !n.id.includes('%') && !n.id.includes('$')).slice(0, 15);
+                const edges = graph.edges.filter(e =>
+                    nodes.some(n => n.id === e.source) && nodes.some(n => n.id === e.target) && e.weight >= 3
+                );
+
+                // Position nodes in a force-directed-like layout
+                const positions = {};
+                const cx = W / 2, cy = H / 2;
+                nodes.forEach((n, i) => {
+                    const angle = (i / nodes.length) * Math.PI * 2;
+                    const radius = 120 + Math.random() * 40;
+                    positions[n.id] = {
+                        x: cx + Math.cos(angle) * radius,
+                        y: cy + Math.sin(angle) * radius,
+                        r: Math.max(8, Math.min(25, (n.influence || 0) / 5)),
+                    };
+                });
+
+                // Simple force simulation (few iterations)
+                for (let iter = 0; iter < 50; iter++) {
+                    // Repulsion
+                    for (let i = 0; i < nodes.length; i++) {
+                        for (let j = i + 1; j < nodes.length; j++) {
+                            const a = positions[nodes[i].id], b = positions[nodes[j].id];
+                            const dx = b.x - a.x, dy = b.y - a.y;
+                            const dist = Math.max(Math.sqrt(dx * dx + dy * dy), 1);
+                            const force = 800 / (dist * dist);
+                            const fx = (dx / dist) * force, fy = (dy / dist) * force;
+                            a.x -= fx; a.y -= fy;
+                            b.x += fx; b.y += fy;
+                        }
+                    }
+                    // Attraction along edges
+                    for (const edge of edges) {
+                        const a = positions[edge.source], b = positions[edge.target];
+                        if (!a || !b) continue;
+                        const dx = b.x - a.x, dy = b.y - a.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        const force = (dist - 100) * 0.01;
+                        const fx = (dx / Math.max(dist, 1)) * force;
+                        const fy = (dy / Math.max(dist, 1)) * force;
+                        a.x += fx; a.y += fy;
+                        b.x -= fx; b.y -= fy;
+                    }
+                    // Center gravity
+                    nodes.forEach(n => {
+                        const p = positions[n.id];
+                        p.x += (cx - p.x) * 0.01;
+                        p.y += (cy - p.y) * 0.01;
+                        p.x = Math.max(50, Math.min(W - 50, p.x));
+                        p.y = Math.max(30, Math.min(H - 30, p.y));
+                    });
+                }
+
+                // Draw edges
+                const maxWeight = Math.max(...edges.map(e => e.weight), 1);
+                for (const edge of edges) {
+                    const a = positions[edge.source], b = positions[edge.target];
+                    if (!a || !b) continue;
+                    const alpha = 0.1 + (edge.weight / maxWeight) * 0.4;
+                    ctx.strokeStyle = `rgba(59, 130, 246, ${alpha})`;
+                    ctx.lineWidth = 0.5 + (edge.weight / maxWeight) * 2;
+                    ctx.beginPath();
+                    ctx.moveTo(a.x, a.y);
+                    ctx.lineTo(b.x, b.y);
+                    ctx.stroke();
+                }
+
+                // Draw nodes
+                const typeColors = { person: '#a855f7', org: '#3b82f6', location: '#10b981', figure: '#eab308' };
+                for (const node of nodes) {
+                    const p = positions[node.id];
+                    const color = typeColors[node.type] || '#3b82f6';
+
+                    // Glow
+                    ctx.fillStyle = color + '20';
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.r + 4, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Node
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Label
+                    ctx.fillStyle = '#e8edf5';
+                    ctx.font = `${Math.max(9, 11)}px Inter`;
+                    ctx.textAlign = 'center';
+                    ctx.fillText(node.id, p.x, p.y + p.r + 14);
+                }
+            }, 100);
+
+            return `<div class="graph-container"><canvas id="entityCanvas"></canvas></div>`;
+        }
+
+        function renderVolumeChart(narrative) {
+            const volume = narrative?.volume_data || [];
+            if (volume.length === 0) return '<p style="color:var(--text-muted);text-align:center;padding:20px">No volume data</p>';
+            const maxCount = Math.max(...volume.map(v => v.count), 1);
+            return `<div class="volume-chart">
+                ${volume.map(v => {
+                const h = Math.max(4, (v.count / maxCount) * 80);
+                return `<div class="volume-bar-wrapper">
+                        <div class="volume-bar" style="height:${h}px;background:linear-gradient(180deg, var(--accent), rgba(59,130,246,0.3))" title="${v.date}: ${v.count} articles"></div>
+                        <div class="volume-label">${v.date?.slice(5)}</div>
+                    </div>`;
+            }).join('')}
+            </div>
+            <div style="text-align:center;font-size:11px;color:var(--text-muted);margin-top:4px">Daily Article Volume</div>`;
+        }
+
+        function renderCooccurrences(narrative) {
+            const cooc = narrative?.entity_cooccurrences || [];
+            if (cooc.length === 0) return '<p style="color:var(--text-muted);text-align:center;padding:20px">No co-occurrence data</p>';
+            return cooc.slice(0, 10).map(c => `<div class="cooccurrence-item">
+                <span class="cooccurrence-weight">${c.weight}</span>
+                <span>${c.entity_a}</span>
+                <span class="cooccurrence-arrow">↔</span>
+                <span>${c.entity_b}</span>
+            </div>`).join('');
+        }
+
+        async function loadData() {
+            const content = document.getElementById('content');
+            content.innerHTML = `<div class="loading"><div class="loading-spinner"></div><div class="loading-text">Loading intelligence data...</div></div>`;
+
+            try {
+                const res = await fetch(API + '/api/test/intelligence');
+                if (!res.ok) throw new Error('API returned ' + res.status);
+                const data = await res.json();
+
+                const sentBreakdown = data.narrative?.sentiment_breakdown || {};
+
+                content.innerHTML = `
+                    ${renderThreatBanner(data.threat_assessment, data.narrative)}
+
+                    <div class="grid-wide">
+                        <div class="card">
+                            <div class="card-header">
+                                <span class="card-title">🎯 Entity Profiles</span>
+                                <span class="card-badge" style="background:var(--accent-dim);color:var(--accent)">${(data.entity_profiles || []).length} tracked</span>
+                            </div>
+                            <div class="card-body card-body-scroll">${renderEntityTable(data.entity_profiles)}</div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <span class="card-title">⚡ Intelligence Signals</span>
+                                <span class="card-badge" style="background:var(--orange-bg);color:var(--orange)">${(data.signals || []).length} active</span>
+                            </div>
+                            <div class="card-body card-body-scroll">${renderSignals(data.signals)}</div>
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="card">
+                            <div class="card-header">
+                                <span class="card-title">🕸️ Entity Network Graph</span>
+                            </div>
+                            <div class="card-body">${renderEntityGraph(data.entity_graph)}</div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <span class="card-title">🔗 Strongest Connections</span>
+                            </div>
+                            <div class="card-body card-body-scroll">${renderCooccurrences(data.narrative)}</div>
+                        </div>
+                    </div>
+
+                    <div class="grid-3">
+                        <div class="card">
+                            <div class="card-header">
+                                <span class="card-title">📡 Source Reliability</span>
+                            </div>
+                            <div class="card-body">${renderSourceReliability(data.source_reliability)}</div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <span class="card-title">📊 Volume Trend</span>
+                            </div>
+                            <div class="card-body">${renderVolumeChart(data.narrative)}</div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <span class="card-title">📈 Sentiment</span>
+                            </div>
+                            <div class="card-body" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px">
+                                <div style="display:flex;gap:20px">
+                                    <div style="text-align:center">
+                                        <div style="font-size:28px;font-weight:800;color:var(--red);font-family:'JetBrains Mono'">${sentBreakdown.percentages?.negative || 0}%</div>
+                                        <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px">Negative</div>
+                                    </div>
+                                    <div style="text-align:center">
+                                        <div style="font-size:28px;font-weight:800;color:var(--accent);font-family:'JetBrains Mono'">${sentBreakdown.percentages?.neutral || 0}%</div>
+                                        <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px">Neutral</div>
+                                    </div>
+                                    <div style="text-align:center">
+                                        <div style="font-size:28px;font-weight:800;color:var(--green);font-family:'JetBrains Mono'">${sentBreakdown.percentages?.positive || 0}%</div>
+                                        <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px">Positive</div>
+                                    </div>
+                                </div>
+                                <div style="font-size:11px;color:var(--text-muted)">${sentBreakdown.total || 0} articles analyzed</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-bottom:20px">
+                        <div class="card-header">
+                            <span class="card-title">📋 Strategic Intelligence Narrative</span>
+                            <span class="card-badge" style="background:var(--purple-bg);color:var(--purple)">${data.narrative?.risk_level?.toUpperCase() || 'N/A'}</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="narrative-text">${(data.narrative?.weekly_narrative || 'No narrative generated yet.').replace(/\n/g, '<br>')}</div>
+                        </div>
+                    </div>
+                `;
+            } catch (err) {
+                content.innerHTML = `<div class="loading">
+                    <div style="font-size:40px">⚠️</div>
+                    <div class="loading-text" style="color:var(--red)">Failed to load intelligence data</div>
+                    <div class="loading-text">${err.message}</div>
+                    <button class="refresh-btn" onclick="loadData()" style="margin-top:12px">Retry</button>
+                </div>`;
+            }
+        }
+
+        loadData();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,196 @@
+// ============================================================
+// ROBIN OSINT — RSS Crawler
+// Fast, reliable — handles ~60% of news sources
+// ============================================================
+
+import RSSParser from 'rss-parser';
+import { JSDOM } from 'jsdom';
+import { Readability } from '@mozilla/readability';
+import { matchArticle, topicRelevant, cleanArticleContent } from '../services/keyword-matcher.js';
+import { saveArticle, updateSourceScrapeStatus } from '../services/article-saver.js';
+import { log } from '../lib/logger.js';
+
+const parser = new RSSParser({
+    timeout: 25000,
+    headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        'Accept': 'application/rss+xml, application/xml, text/xml, */*',
+        'Accept-Language': 'en-US,en;q=0.9',
+    },
+});
+
+const MAX_ARTICLES_PER_RUN = 50;
+const CONCURRENT_BATCH_SIZE = 3;
+
+/**
+ * Fetch and parse an RSS feed.
+ * @param {string} url - RSS feed URL
+ * @returns {Promise<Array>} Feed items (empty on error)
+ */
+export async function fetchRssFeed(url) {
+    try {
+        const feed = await parser.parseURL(url);
+        return feed.items || [];
+    } catch (error) {
+        log.scraper.warn('RSS feed fetch failed', { url, error: error.message });
+        return [];
+    }
+}
+
+/**
+ * Fetch full article content from a URL using Readability.
+ * @param {string} url - Article URL
+ * @returns {Promise<{ title: string, content: string, publishedAt: Date }|null>}
+ */
+export async function fetchFullArticleContent(url) {
+    try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 15000);
+
+        const response = await fetch(url, {
+            signal: controller.signal,
+            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
+        });
+        clearTimeout(timeout);
+
+        const html = await response.text();
+        const dom = new JSDOM(html, { url });
+
+        // Extract og:image — works for almost every modern news site
+        const ogImage = dom.window.document.querySelector('meta[property="og:image"]')?.getAttribute('content')
+            || dom.window.document.querySelector('meta[name="twitter:image"]')?.getAttribute('content')
+            || null;
+
+        const reader = new Readability(dom.window.document);
+        const article = reader.parse();
+
+        if (!article || !article.textContent) {
+            const body = dom.window.document.querySelector('article, main, .article-body, body');
+            const fallbackContent = body?.textContent?.replace(/\s+/g, ' ').trim() || '';
+            return {
+                title: dom.window.document.title || '',
+                content: fallbackContent.substring(0, 15000),
+                imageUrl: ogImage,
+                publishedAt: new Date(),
+            };
+        }
+
+        return {
+            title: article.title || '',
+            content: article.textContent.replace(/\s+/g, ' ').trim().substring(0, 15000),
+            imageUrl: ogImage,
+            publishedAt: new Date(),
+        };
+    } catch (error) {
+        log.scraper.warn('Full article fetch failed', { url, error: error.message });
+        return null;
+    }
+}
+
+/**
+ * Crawl an RSS source: fetch feed, filter by keywords, save matches.
+ * @param {Object} source - Source record { id, url, client_id, last_scraped_at }
+ * @param {string[]} keywords - Watch keywords for this client
+ * @returns {Promise<{ sourceId, articlesFound, articlesSaved, errors }>}
+ */
+export async function crawlRssSource(source, keywords) {
+    const result = { sourceId: source.id, articlesFound: 0, articlesSaved: 0, errors: [] };
+
+    try {
+        const items = await fetchRssFeed(source.url);
+        if (items.length === 0) {
+            await updateSourceScrapeStatus(source.id, false, 'Empty RSS feed');
+            return result;
+        }
+
+        // Filter: only items after last_scraped_at (or last 48hrs)
+        const since = source.last_scraped_at
+            ? new Date(source.last_scraped_at)
+            : new Date(Date.now() - 48 * 60 * 60 * 1000);
+
+        const recentItems = items
+            .filter((item) => {
+                const pubDate = new Date(item.pubDate || item.isoDate || Date.now());
+                return pubDate > since;
+            })
+            .slice(0, MAX_ARTICLES_PER_RUN);
+
+        result.articlesFound = recentItems.length;
+
+        // Process in batches of CONCURRENT_BATCH_SIZE
+        for (let i = 0; i < recentItems.length; i += CONCURRENT_BATCH_SIZE) {
+            const batch = recentItems.slice(i, i + CONCURRENT_BATCH_SIZE);
+            const promises = batch.map(async (item) => {
+                try {
+                    const quickText = cleanArticleContent(`${item.title || ''} ${item.contentSnippet || item.content || ''}`);
+                    const quickMatch = matchArticle({ title: item.title || '', content: quickText }, keywords);
+
+                    // For brief sources: require topic word in TITLE (strict but fair)
+                    // For other sources: require keyword match
+                    if (!quickMatch.matched) {
+                        if (!source.briefSource) return;
+                        if (!topicRelevant(item.title || '', source.topicWords)) return;
+                    }
+
+                    // Fetch full article content
+                    const fullArticle = await fetchFullArticleContent(item.link);
+                    if (!fullArticle) return;
+
+                    // Re-match on cleaned content for keyword tagging
+                    const cleanedContent = cleanArticleContent(fullArticle.content);
+                    const fullMatch = matchArticle(
+                        { title: fullArticle.title || item.title, content: cleanedContent },
+                        keywords
+                    );
+
+                    // For non-brief sources, require full content match too
+                    if (!fullMatch.matched && !source.briefSource) return;
+
+                    // Save article — use matched keywords or 'topic_relevant' tag
+                    const matchedKws = fullMatch.matchedKeywords.length > 0
+                        ? fullMatch.matchedKeywords
+                        : ['topic_relevant'];
+
+                    // Collect image: try RSS enclosure, media:thumbnail, then og:image from fetched HTML
+                    const rssImage = item.enclosure?.url
+                        || item['media:thumbnail']?.['$']?.url
+                        || item['media:content']?.['$']?.url
+                        || null;
+                    const imageUrl = rssImage || fullArticle.imageUrl || null;
+
+                    const saveResult = await saveArticle({
+                        title: fullArticle.title || item.title || 'Untitled',
+                        content: fullArticle.content,
+                        url: item.link,
+                        publishedAt: item.pubDate || item.isoDate || new Date(),
+                        sourceId: source.id,
+                        clientId: source.client_id,
+                        matchedKeywords: matchedKws,
+                        imageUrl,
+                    });
+
+                    if (saveResult.saved) {
+                        result.articlesSaved++;
+                    }
+                } catch (error) {
+                    result.errors.push({ url: item.link, error: error.message });
+                }
+            });
+
+            await Promise.allSettled(promises);
+        }
+
+        await updateSourceScrapeStatus(source.id, true);
+        log.scraper.info('RSS crawl complete', {
+            source: source.name || source.url,
+            found: result.articlesFound,
+            saved: result.articlesSaved,
+        });
+    } catch (error) {
+        await updateSourceScrapeStatus(source.id, false, error.message);
+        result.errors.push({ error: error.message });
+        log.scraper.error('RSS crawl failed', { source: source.url, error: error.message });
+    }
+
+    return result;
+}

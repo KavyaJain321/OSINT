@@ -1,0 +1,36 @@
+# ROBIN OSINT Backend — Cursor Rules
+
+## Project Context
+Multi-tenant news intelligence SaaS.
+Node.js backend with Express, Supabase, and Groq AI.
+
+## Non-Negotiable Rules
+1. Every database query MUST filter by client_id (unless SUPER_ADMIN)
+2. Every route MUST have authenticate middleware applied
+3. Never use Supabase anon key in backend code — always service role key
+4. Always use ES modules (import/export) — never require()
+5. Never expose service role key in any log output
+6. All user input must be validated with Zod before processing
+7. Wrap every async route handler in try/catch
+
+## Code Style
+- async/await only — never .then() chains
+- Descriptive console.log with prefix: [Scraper], [AI], [Chat], [Auth]
+- Route handlers thin — business logic in services/ or ai/ files
+- Named exports preferred (except Express routers use default)
+
+## Database Patterns
+- Always use supabase from src/lib/supabase.js (singleton)
+- const { data, error } = await supabase.from(...) — always check error
+- Use .limit() on all queries — prevent accidental full-table scans
+
+## Scraper Rules
+- Never scrape more than 50 articles per source per run
+- Always close Playwright browsers in finally blocks
+- Never run more than 2 Playwright browsers simultaneously
+- Always update last_scraped_at after each attempt (success or fail)
+
+## File Organization
+- Keep files 80–200 lines, split if exceeding 200
+- Constants at top, exports at bottom
+- One concern per file

@@ -1,0 +1,28 @@
+{
+  "filtered": {
+    "data": [
+      {
+        "id": "821bda4b-c84c-4999-b85a-a380185f9e3f",
+        "title": "Odisha State Government — Media Intelligence & Public Sentiment Monitoring",
+        "client_id": "7b5390a0-0d5b-419e-84b4-533fd9c44d36",
+        "status": "active"
+      }
+    ]
+  },
+  "all": {
+    "data": [
+      {
+        "id": "821bda4b-c84c-4999-b85a-a380185f9e3f",
+        "title": "Odisha State Government — Media Intelligence & Public Sentiment Monitoring",
+        "client_id": "7b5390a0-0d5b-419e-84b4-533fd9c44d36",
+        "status": "active"
+      },
+      {
+        "id": "5fbf7fdb-7591-4076-91a0-df45f9707df5",
+        "title": "Middle East Conflict & Oil Supply Risk 2025",
+        "client_id": "c0983ace-178a-4776-8457-e43863be194a",
+        "status": "active"
+      }
+    ]
+  }
+}

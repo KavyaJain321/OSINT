@@ -1,0 +1,84 @@
+=== THREAT ASSESSMENT ===
+{
+  "id": "e66c1b31-e877-4052-a484-e7493f6c7c87",
+  "client_id": "c0983ace-178a-4776-8457-e43863be194a",
+  "assessment_date": "2026-02-25",
+  "overall_score": 48,
+  "dimensions": {
+    "financial": 58,
+    "regulatory": 35,
+    "operational": 24,
+    "geopolitical": 100,
+    "reputational": 7
+  },
+  "active_threats": [
+    {
+      "url": "https://www.aljazeera.com/news/2026/2/24/afghanistan-bombing-whats-pakistans-strategy-as-india-taliban-ties-grow?traffic_source=rss",
+      "title": "Afghanistan bombing: What’s Pakistan’s strategy as India-Taliban ties grow?",
+      "category": "conflict",
+      "severity": "critical",
+      "first_seen": "2026-02-24T04:07:45+00:00",
+      "importance": 8
+    },
+    {
+      "url": "https://www.aljazeera.com/economy/2026/2/23/trumps-new-tariff-threats-trigger-economic-uncertainty-trade-deals-stall?traffic_source=rss",
+      "title": "Trump’s new tariff threats trigger economic uncertainty; trade deals stall",
+      "category": "economic",
+      "severity": "high",
+      "first_seen": "2026-02-23T20:38:53+00:00",
+      "importance": 6
+    }
+  ],
+  "threat_velocity": {
+    "current": 13,
+    "previous": 2,
+    "direction": "accelerating"
+  },
+  "cascading_risks": [],
+  "mitigation_notes": null,
+  "created_at": "2026-02-25T04:34:31.416243+00:00"
+}
+
+=== TOP 10 ENTITY PROFILES ===
+Donald Trump (person) | influence=100 mentions=28 trend=stable risks=[high_visibility,active_now,crisis_linked] rels=10
+Ukraine (location) | influence=100 mentions=19 trend=stable risks=[high_visibility,active_now,crisis_linked] rels=10
+National Bank of Pakistan (org) | influence=100 mentions=33 trend=stable risks=[high_visibility,active_now,crisis_linked] rels=10
+Russia (location) | influence=100 mentions=17 trend=stable risks=[high_visibility,active_now,crisis_linked] rels=10
+US (location) | influence=93.3 mentions=13 trend=stable risks=[high_visibility,active_now,crisis_linked] rels=0
+Pakistan (location) | influence=77.9 mentions=8 trend=concerning risks=[active_now,crisis_linked] rels=10
+United States (location) | influence=72.5 mentions=9 trend=stable risks=[active_now] rels=10
+Israel (location) | influence=69.1 mentions=10 trend=concerning risks=[high_visibility,active_now,crisis_linked] rels=10
+Iran (location) | influence=69 mentions=8 trend=stable risks=[active_now,crisis_linked] rels=0
+India (location) | influence=67.9 mentions=1 trend=worsening risks=[high_negative_coverage,active_now,crisis_linked] rels=4
+
+=== INTELLIGENCE SIGNALS (10) ===
+[WATCH] new_entity: New entity: "Russia" emerged
+  -> First seen 2026-02-24, already in 17 articles
+[WATCH] new_entity: New entity: "Ukraine" emerged
+  -> First seen 2026-02-24, already in 19 articles
+[WATCH] new_entity: New entity: "Donald Trump" emerged
+  -> First seen 2026-02-24, already in 28 articles
+[WATCH] new_entity: New entity: "US" emerged
+  -> First seen 2026-02-24, already in 13 articles
+[WATCH] new_entity: New entity: "Pakistan" emerged
+  -> First seen 2026-02-24, already in 8 articles
+[WATCH] new_entity: New entity: "United States" emerged
+  -> First seen 2026-02-24, already in 9 articles
+[WATCH] new_entity: New entity: "Israel" emerged
+  -> First seen 2026-02-24, already in 10 articles
+[WATCH] new_entity: New entity: "Iran" emerged
+  -> First seen 2026-02-24, already in 8 articles
+[WATCH] new_entity: New entity: "Afghanistan" emerged
+  -> First seen 2026-02-24, already in 4 articles
+[WATCH] new_entity: New entity: "National Bank of Pakistan" emerged
+  -> First seen 2026-02-24, already in 33 articles
+
+=== SOURCE RELIABILITY ===
+Al Jazeera: reliability=100 bias=center articles=47 avgImp=3
+BBC World News: reliability=90 bias=center articles=11 avgImp=3.1
+NY Times World: reliability=40 bias=center-right articles=1 avgImp=2
+
+=== NARRATIVE ===
+Risk: medium
+Date: 2026-02-25
+The current threat posture for National Bank of Pakistan is medium, with a threat level of 48 out of 100, indicating a moderate level of risk. The dominant risk dimension is financial, with a score of 58, suggesting that financial threats pose the most significant risk to the bank. This is followed by regulatory and operational risks, with scores of 35 and 24, respectively. Geopolitical risks also pose a significant threat, with a score of 100, indicating a high level of risk associated with glo
