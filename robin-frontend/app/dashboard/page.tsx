@@ -288,8 +288,8 @@ export default function StrategicMonitor() {
                                     <YAxis hide domain={[0, 10]} />
                                     <Tooltip
                                         contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: "2px", fontSize: "11px", color: "#e2e8f0" }}
-                                        formatter={(v: number) => [`${v}/10`, "Risk"]}
-                                        labelFormatter={(l: string) => l?.slice(11, 16) || ""}
+                                        formatter={(v: number | undefined) => [`${v ?? 0}/10`, "Risk"]}
+                                        labelFormatter={(l: string | number) => String(l)?.slice(11, 16) || ""}
                                     />
                                     <Area type="monotone" dataKey="avgImportance" stroke="#f59e0b" fill="url(#riskGrad)" strokeWidth={1.5} dot={false} />
                                 </AreaChart>
