@@ -21,19 +21,19 @@ const USER_AGENT = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.c
  * @returns {Promise<string|null>}
  */
 export async function fetchPage(url, timeoutMs = 10000) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
     try {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), timeoutMs);
-
         const response = await fetch(url, {
             signal: controller.signal,
             headers: { 'User-Agent': USER_AGENT },
         });
+        const text = await response.text();
         clearTimeout(timeout);
-
-        return await response.text();
+        return text;
     } catch (error) {
-        log.scraper.warn('Page fetch failed', { url, error: error.message });
+        clearTimeout(timeout);
+        log.scraper.warn('Page fetch failed', { url: url.substring(0, 80), error: error.message });
         return null;
     }
 }
@@ -128,7 +128,7 @@ function extractContent(html, url) {
  * @param {string[]} keywords - Watch keywords
  * @returns {Promise<{ sourceId, articlesFound, articlesSaved, errors }>}
  */
-export async function crawlHtmlSource(source, keywords) {
+async function crawlHtmlSourceInternal(source, keywords) {
     const result = { sourceId: source.id, articlesFound: 0, articlesSaved: 0, errors: [] };
 
     try {
@@ -147,53 +147,56 @@ export async function crawlHtmlSource(source, keywords) {
         for (let i = 0; i < links.length; i += CONCURRENT_BATCH_SIZE) {
             const batch = links.slice(i, i + CONCURRENT_BATCH_SIZE);
             const promises = batch.map(async (link) => {
+                const articleTimeout = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Article processing timeout 20s')), 20000)
+                );
                 try {
-                    const pageHtml = await fetchPage(link);
-                    if (!pageHtml) return;
+                    await Promise.race([
+                        (async () => {
+                            const pageHtml = await fetchPage(link);
+                            if (!pageHtml) return;
 
-                    const articleData = extractContent(pageHtml, link);
-                    if (!articleData || articleData.content.length < 100) return;
+                            const articleData = extractContent(pageHtml, link);
+                            if (!articleData || articleData.content.length < 100) return;
 
-                    const match = matchArticle(
-                        { title: articleData.title, content: articleData.content },
-                        keywords
-                    );
+                            const match = matchArticle(
+                                { title: articleData.title, content: articleData.content },
+                                keywords
+                            );
 
-                    // For brief sources: require topic word in TITLE
-                    // For other sources: require keyword match
-                    if (!match.matched) {
-                        if (!source.briefSource) return;
-                        if (!topicRelevant(articleData.title || '', source.topicWords)) return;
-                    }
+                            // For brief sources: require topic word in TITLE
+                            // For other sources: require keyword match
+                            if (!match.matched) {
+                                if (!source.briefSource) return;
+                                if (!topicRelevant(articleData.title || '', source.topicWords)) return;
+                            }
 
-                    const matchedKws = match.matchedKeywords.length > 0
-                        ? match.matchedKeywords
-                        : ['topic_relevant'];
+                            const matchedKws = match.matchedKeywords.length > 0
+                                ? match.matchedKeywords
+                                : ['topic_relevant'];
 
-                    const saveResult = await saveArticle({
-                        title: articleData.title || 'Untitled',
-                        content: articleData.content,
-                        url: link,
-                        publishedAt: articleData.publishedAt,
-                        sourceId: source.id,
-                        clientId: source.client_id,
-                        matchedKeywords: matchedKws,
-                    });
+                            const saveResult = await saveArticle({
+                                title: articleData.title || 'Untitled',
+                                content: articleData.content,
+                                url: link,
+                                publishedAt: articleData.publishedAt,
+                                sourceId: source.id,
+                                clientId: source.client_id,
+                                matchedKeywords: matchedKws,
+                            });
 
-                    if (saveResult.saved) {
-                        result.articlesSaved++;
-                    }
+                            if (saveResult.saved) {
+                                result.articlesSaved++;
+                            }
+                        })(),
+                        articleTimeout,
+                    ]);
                 } catch (error) {
                     result.errors.push({ url: link, error: error.message });
                 }
             });
 
             await Promise.allSettled(promises);
-
-            // Exponential backoff on failures
-            if (result.errors.length > 0) {
-                await new Promise((resolve) => setTimeout(resolve, 2000));
-            }
         }
 
         await updateSourceScrapeStatus(source.id, true);
@@ -209,4 +212,24 @@ export async function crawlHtmlSource(source, keywords) {
     }
 
     return result;
+}
+
+export async function crawlHtmlSource(source, keywords) {
+    const result = { sourceId: source.id, articlesFound: 0, articlesSaved: 0, errors: [] };
+    try {
+        const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Source timeout after 90s')), 90000)
+        );
+        return await Promise.race([
+            crawlHtmlSourceInternal(source, keywords),
+            timeoutPromise,
+        ]);
+    } catch (err) {
+        log.scraper.warn('HTML source timed out or crashed', {
+            source: source.name || source.url,
+            error: err.message,
+        });
+        await updateSourceScrapeStatus(source.id, false, err.message);
+        return { ...result, errors: [{ error: err.message }] };
+    }
 }
