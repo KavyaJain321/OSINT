@@ -24,7 +24,7 @@ const parser = new Parser({
  * @param {string[]} keywords - Keywords to match against
  * @returns {Promise<Object[]>} Array of raw article objects ready for content-saver
  */
-export async function scrapeGoogleNews(source, clientId, keywords = []) {
+async function scrapeGoogleNewsInternal(source, clientId, keywords = []) {
     const startTime = Date.now();
     const results = [];
 
@@ -125,4 +125,22 @@ function extractPublicationFromTitle(title) {
         return title.substring(dashIndex + 3).trim();
     }
     return 'Google News';
+}
+
+export async function scrapeGoogleNews(source, clientId, keywords = []) {
+    try {
+        const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Google News source timeout after 20s')), 20000)
+        );
+        return await Promise.race([
+            scrapeGoogleNewsInternal(source, clientId, keywords),
+            timeoutPromise,
+        ]);
+    } catch (err) {
+        log.scraper.warn('GNews source timed out or crashed', {
+            source: source.name || source.url,
+            error: err.message,
+        });
+        return [];
+    }
 }

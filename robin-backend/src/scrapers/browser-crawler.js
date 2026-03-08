@@ -105,7 +105,7 @@ function delay(ms) {
  * @param {string[]} keywords - Watch keywords
  * @returns {Promise<{ sourceId, articlesFound, articlesSaved, errors }>}
  */
-export async function crawlBrowserSource(source, keywords) {
+async function crawlBrowserSourceInternal(source, keywords) {
     const result = { sourceId: source.id, articlesFound: 0, articlesSaved: 0, errors: [] };
     let browser = null;
 
@@ -195,4 +195,24 @@ export async function crawlBrowserSource(source, keywords) {
     }
 
     return result;
+}
+
+export async function crawlBrowserSource(source, keywords) {
+    const result = { sourceId: source.id, articlesFound: 0, articlesSaved: 0, errors: [] };
+    try {
+        const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Browser source timeout after 120s')), 120000)
+        );
+        return await Promise.race([
+            crawlBrowserSourceInternal(source, keywords),
+            timeoutPromise,
+        ]);
+    } catch (err) {
+        log.scraper.warn('Browser source timed out or crashed', {
+            source: source.name || source.url,
+            error: err.message,
+        });
+        await updateSourceScrapeStatus(source.id, false, err.message);
+        return { ...result, errors: [{ error: err.message }] };
+    }
 }

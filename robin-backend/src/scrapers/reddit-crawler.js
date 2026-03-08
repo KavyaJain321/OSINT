@@ -21,7 +21,7 @@ const TIMEOUT_MS = 10000;
  * @param {string[]} keywords - Keywords to match against
  * @returns {Promise<Object[]>} Array of raw content objects ready for content-saver
  */
-export async function scrapeReddit(source, clientId, keywords = []) {
+async function scrapeRedditInternal(source, clientId, keywords = []) {
     const startTime = Date.now();
     const results = [];
 
@@ -111,4 +111,22 @@ export async function scrapeReddit(source, clientId, keywords = []) {
 function extractSubreddit(url) {
     const match = url.match(/\/r\/([a-zA-Z0-9_]+)/);
     return match ? match[1] : null;
+}
+
+export async function scrapeReddit(source, clientId, keywords = []) {
+    try {
+        const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Reddit source timeout after 20s')), 20000)
+        );
+        return await Promise.race([
+            scrapeRedditInternal(source, clientId, keywords),
+            timeoutPromise,
+        ]);
+    } catch (err) {
+        log.scraper.warn('Reddit source timed out or crashed', {
+            source: source.name || source.url,
+            error: err.message,
+        });
+        return [];
+    }
 }

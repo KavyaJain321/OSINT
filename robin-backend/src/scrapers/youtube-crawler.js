@@ -219,7 +219,7 @@ async function fetchChannelRSS(channelId) {
  * - Optionally enriches with yt-dlp transcript (non-blocking, 20s timeout)
  * - Saves all matched videos with thumbnails
  */
-export async function crawlYoutubeSource(source, keywords) {
+async function crawlYoutubeSourceInternal(source, keywords) {
     const result = { sourceId: source.id, articlesFound: 0, articlesSaved: 0, errors: [] };
 
     try {
@@ -329,4 +329,24 @@ export async function crawlYoutubeSource(source, keywords) {
     }
 
     return result;
+}
+
+export async function crawlYoutubeSource(source, keywords) {
+    const result = { sourceId: source.id, articlesFound: 0, articlesSaved: 0, errors: [] };
+    try {
+        const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('YouTube source timeout after 30s')), 30000)
+        );
+        return await Promise.race([
+            crawlYoutubeSourceInternal(source, keywords),
+            timeoutPromise,
+        ]);
+    } catch (err) {
+        log.scraper.warn('YouTube source timed out or crashed', {
+            source: source.name || source.url,
+            error: err.message,
+        });
+        await updateSourceScrapeStatus(source.id, false, err.message);
+        return { ...result, errors: [{ error: err.message }] };
+    }
 }
