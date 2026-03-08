@@ -39,6 +39,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 // ── Middleware ───────────────────────────────────────────────
+app.set('trust proxy', 1); // Required on Render (behind reverse proxy) for rate limiting
 app.use(helmet({ contentSecurityPolicy: false }));
 
 const allowedOrigins = [
