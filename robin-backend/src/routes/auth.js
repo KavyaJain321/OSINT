@@ -72,6 +72,28 @@ router.post('/logout', (req, res) => {
     return res.json({ message: 'Logged out successfully' });
 });
 
+// ── POST /api/auth/reset-password ────────────────────────────
+router.post('/reset-password', async (req, res) => {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email is required' });
+
+    try {
+        // Supabase sends the reset email automatically
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth/update-password`,
+        });
+
+        if (error) {
+            log.auth?.warn?.('Password reset failed', { email, error: error.message });
+        }
+
+        // Always return 200 to prevent email enumeration
+        return res.json({ message: 'If that email exists, a reset link has been sent.' });
+    } catch (err) {
+        return res.status(500).json({ error: 'Reset request failed' });
+    }
+});
+
 // ── POST /api/auth/refresh ───────────────────────────────────
 // Exchange a refresh_token for a new access_token (handles 1hr Supabase expiry)
 router.post('/refresh', async (req, res) => {
