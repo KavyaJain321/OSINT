@@ -21,11 +21,14 @@ import { updatePipelineStage } from '../lib/pipeline-tracker.js';
 const SCRAPER_LOCK_KEY = 'scraper_running';
 const LOCK_TIMEOUT_HOURS = 0.5; // 30 minutes — scrapes typically complete in 10-20 min
 
-// Concurrency limits per crawler type
 const RSS_CONCURRENCY = 5;
-const HTML_CONCURRENCY = 3;
+const HTML_CONCURRENCY = 5;  // increased from 3 for faster throughput
 const PDF_CONCURRENCY = 2;
 const YOUTUBE_CONCURRENCY = 3;
+
+// Max HTML sources per cycle — prevents 30+ minute scrape runs
+// Sources rotate on each hourly cycle so all get covered over time
+const MAX_HTML_PER_CYCLE = 100;
 
 // Fallback chain: when primary crawler fails, try the next type
 const FALLBACK_CHAIN = {
@@ -330,9 +333,19 @@ export async function runScraperCycle() {
         await updatePipelineStage('scraping', `Scraping RSS sources (0/${rssSources.length})...`, { phase: 'rss', total: sources.length });
         const rssResults = await processBatch(rssSources, crawlWithFallback, RSS_CONCURRENCY);
 
-        // Process HTML (parallel, concurrency 3)
+        // Process HTML (parallel, concurrency 5)
+        // Cap to MAX_HTML_PER_CYCLE, prioritising least-recently-scraped so all
+        // sources rotate across the hourly cron runs rather than only the first 100.
+        const htmlSourcesSorted = htmlSources
+            .sort((a, b) => {
+                const dateA = a.last_scraped_at ? new Date(a.last_scraped_at).getTime() : 0;
+                const dateB = b.last_scraped_at ? new Date(b.last_scraped_at).getTime() : 0;
+                return dateA - dateB; // oldest first
+            })
+            .slice(0, MAX_HTML_PER_CYCLE);
+        log.scraper.info('HTML sources selected for this cycle', { total: htmlSources.length, selected: htmlSourcesSorted.length });
         await updatePipelineStage('scraping', `Scraping HTML sources (${rssResults.length} RSS done)...`, { phase: 'html', rssComplete: rssResults.length });
-        const htmlResults = await processBatch(htmlSources, crawlHtmlSource, HTML_CONCURRENCY);
+        const htmlResults = await processBatch(htmlSourcesSorted, crawlHtmlSource, HTML_CONCURRENCY);
 
         // Process PDF (parallel, concurrency 2)
         const pdfResults = await processBatch(pdfSources, crawlPdfSource, PDF_CONCURRENCY);
