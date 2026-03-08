@@ -139,6 +139,7 @@ function extractContent(html, url) {
  */
 async function crawlHtmlSourceInternal(source, keywords) {
     const result = { sourceId: source.id, articlesFound: 0, articlesSaved: 0, errors: [] };
+    log.scraper.info('HTML crawl started', { source: source.name || source.url });
 
     try {
         // 1. Fetch homepage

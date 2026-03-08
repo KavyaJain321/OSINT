@@ -22,7 +22,7 @@ const SCRAPER_LOCK_KEY = 'scraper_running';
 const LOCK_TIMEOUT_HOURS = 0.5; // 30 minutes — scrapes typically complete in 10-20 min
 
 const RSS_CONCURRENCY = 3;
-const HTML_CONCURRENCY = 3;  // keep at 3 — jsdom is memory-heavy, 5 caused OOM on Render
+const HTML_CONCURRENCY = 2;  // keep at 2 — jsdom is memory-heavy, 5 caused OOM on Render
 const PDF_CONCURRENCY = 2;
 const YOUTUBE_CONCURRENCY = 3;
 
