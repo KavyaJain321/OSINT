@@ -160,8 +160,22 @@ app.use((err, req, res, _next) => {
 });
 
 // ── Start Server ─────────────────────────────────────────────
-const server = app.listen(config.port, () => {
+const server = app.listen(config.port, async () => {
     log.system.info(`ROBIN OSINT backend on port ${config.port} [${config.nodeEnv}]`);
+
+    // Clear any stale locks left over from a crash or Render restart.
+    // Without this, the scraper and batch intelligence would be permanently
+    // blocked (up to 30min / 3h) after every unexpected restart.
+    try {
+        await supabase.from('system_state').upsert([
+            { key: 'scraper_running', value: 'false', updated_at: new Date().toISOString() },
+            { key: 'batch_intelligence_lock', value: 'false', updated_at: new Date().toISOString() },
+        ]);
+        log.system.info('Startup: stale scraper/batch locks cleared');
+    } catch (e) {
+        log.system.warn('Startup: could not clear locks (system_state may not exist yet)', { error: e.message });
+    }
+
     startScheduler();
     startAnalysisWorker();
 });
